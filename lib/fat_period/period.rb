@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+require 'fat_core/date'
+require 'fat_core/range'
+
 class Period
   include Enumerable
   include Comparable
