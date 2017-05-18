@@ -2,6 +2,7 @@
 
 require 'fat_core/date'
 require 'fat_core/range'
+require 'fat_core/string'
 
 class Period
   include Enumerable
@@ -443,7 +444,7 @@ class Period
   # Return whether any of the Periods that are within self overlap one
   # another
   def has_overlaps_within?(periods)
-    to_range.has_overlaps_within?(periods.map(&:to_range))
+    to_range.overlaps_among?(periods.map(&:to_range))
   end
 
   def spanned_by?(periods)

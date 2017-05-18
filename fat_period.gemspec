@@ -9,8 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Daniel E. Doherty']
   spec.email         = ['ded-law@ddoherty.net']
 
-  spec.summary       = %q{Implements a Period class for a range of Dates.}
-  spec.description   = %q{Write a longer description or delete this line.}
+  spec.summary       = %q{Implements a Period class as a Range of Dates.}
   spec.homepage      = 'https://github.com/ddoherty03/fat_period'
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
@@ -34,5 +33,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
 
-  spec.add_runtime_dependency 'fat_core', '~> 3.0'
+  spec.add_runtime_dependency 'fat_core', '~> 4.0'
 end
