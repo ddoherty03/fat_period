@@ -1,14 +1,13 @@
 #!/usr/bin/env ruby
 
-require "bundler/setup"
-require "fat_period"
+require 'bundler/setup'
+require 'fat_period'
+require 'pry'
 
 # You can add fixtures and/or initialization code here to make experimenting
 # with your gem easier. You can also use a different console, if you like.
+@dd1 = Date.parse('2016-01-31')
+@dd2 = Date.parse('2016-01-30')
+@dd3 = Date.parse('2016-01-29')
 
-# (If you use this, don't forget to add pry to your Gemfile!)
-# require "pry"
-# Pry.start
-
-require "irb"
-IRB.start(__FILE__)
+Pry.start
