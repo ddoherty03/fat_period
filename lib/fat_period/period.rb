@@ -5,9 +5,17 @@ require 'fat_core/range'
 require 'fat_core/string'
 
 class Period
-  include Enumerable
+  # Return the first Date of the Period
+  #
+  # @return [Date]
+  attr_reader :first
 
-  attr_reader :first, :last
+  # Return the last Date of the Period
+  #
+  # @return [Date]
+  attr_reader :last
+
+  # @group Construction
 
   def initialize(first, last)
     case first
@@ -59,8 +67,11 @@ class Period
   # Period from commercial beginning of time to commercial end of time.
   FOREVER = Period.new(Date::BOT, Date::EOT)
 
-  # group: Conversion
+  # @group Conversion
 
+  # Convert this Period to a Range.
+  #
+  # @return [Range]
   def to_range
     (first..last)
   end
@@ -83,7 +94,9 @@ class Period
     end
   end
 
-  # A concise way to print out Periods.
+  # A concise way to print out Periods as 'Period(YYYY-MM-DD..YYYY-MM-DD)'.
+  #
+  # @return [String]
   def inspect
     "Period(#{first.iso}..#{last.iso})"
   end
@@ -93,9 +106,10 @@ class Period
     "#{first.iso}--#{last.iso}"
   end
 
-  # @group: Comparison
 
   include Comparable
+
+  # @group Comparison
 
   # Comparable base: periods are equal only if their first and last dates are
   # equal.  Sorting will be by first date, then last, so periods starting on
@@ -125,7 +139,9 @@ class Period
     contains?(other)
   end
 
-  # @group: Enumeration
+  include Enumerable
+
+  # @group Enumeration
 
   # Enumerable base.  Yield each day in the period.
   def each
@@ -140,7 +156,7 @@ class Period
     select(&:nyse_workday?)
   end
 
-  # group: Size
+  # @group Size
 
   # Return the number of days in the period
   def size
@@ -169,7 +185,7 @@ class Period
     (days / days_in_year).to_f
   end
 
-  # group: Parsing
+  # @group Parsing
 
   # Return a period based on two date specs passed as strings (see
   # Date.parse_spec), a '''from' and a 'to' spec.  If the to-spec is not given
@@ -232,7 +248,7 @@ class Period
   #   melded_periods
   # end
 
-  # group: Chunking
+  # @group Chunking
 
   def self.chunk_syms
     [:day, :week, :biweek, :semimonth, :month, :bimonth,
@@ -480,7 +496,8 @@ class Period
     end
     result
   end
-  # group: Set operations
+
+  # @group Set operations
 
   def subset_of?(other)
     to_range.subset_of?(other.to_range)
