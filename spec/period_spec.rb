@@ -212,32 +212,6 @@ describe Period do
   end
 
   describe 'instance methods' do
-    it 'should be able to set first' do
-      pp = Period.new('2014-12-07', '2014-12-17')
-      pp.first = Date.parse('2014-12-01')
-      expect(pp.first).to eq Date.parse('2014-12-01')
-    end
-
-    it 'should be able to set last' do
-      pp = Period.new('2014-12-07', '2014-12-17')
-      pp.last = Date.parse('2014-12-31')
-      expect(pp.last).to eq Date.parse('2014-12-31')
-    end
-
-    it 'should not be able to set first > last' do
-      pp = Period.new('2014-12-07', '2014-12-17')
-      expect {
-        pp.first = Date.parse('2014-12-31')
-      }.to raise_error ArgumentError
-    end
-
-    it 'should not be able to set last < first' do
-      pp = Period.new('2014-12-07', '2014-12-17')
-      expect {
-        pp.last = Date.parse('2014-12-01')
-      }.to raise_error ArgumentError
-    end
-
     it 'should be able to compare for equality' do
       pp1 = Period.new('2013-01-01', '2013-12-31')
       pp2 = Period.new('2013-01-01', '2013-12-31')

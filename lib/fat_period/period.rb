@@ -56,25 +56,9 @@ class Period
   TO_DATE = Period.new(Date::BOT, Date.current)
   FOREVER = Period.new(Date::BOT, Date::EOT)
 
-  # Need custom setters to ensure first <= last
-  def first=(new_first)
-    unless new_first.is_a?(Date)
-      raise ArgumentError, "can't set Period#first to non-date"
-    end
-    unless new_first <= last
-      raise ArgumentError, 'cannot make Period#first > Period#last'
-    end
-    @first = new_first
   end
 
-  def last=(new_last)
-    unless new_last.is_a?(Date)
-      raise ArgumentError, 'cannot set Period#last to non-date'
     end
-    unless new_last >= first
-      raise ArgumentError, 'cannot make Period#last < Period#first'
-    end
-    @last = new_last
   end
 
   # Comparable base: periods are equal only if their first and last dates are
