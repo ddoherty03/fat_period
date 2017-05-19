@@ -93,27 +93,6 @@ class Period
     "#{first.iso}--#{last.iso}"
   end
 
-  # # Need custom setters to ensure first <= last
-  # def first=(new_first)
-  #   unless new_first.is_a?(Date)
-  #     raise ArgumentError, "can't set Period#first to non-date"
-  #   end
-  #   unless new_first <= last
-  #     raise ArgumentError, 'cannot make Period#first > Period#last'
-  #   end
-  #   @first = new_first
-  # end
-
-  # def last=(new_last)
-  #   unless new_last.is_a?(Date)
-  #     raise ArgumentError, 'cannot set Period#last to non-date'
-  #   end
-  #   unless new_last >= first
-  #     raise ArgumentError, 'cannot make Period#last < Period#first'
-  #   end
-  #   @last = new_last
-  # end
-
   # @group: Comparison
 
   include Comparable
