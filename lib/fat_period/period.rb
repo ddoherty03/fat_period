@@ -16,12 +16,22 @@ class Period
   attr_reader :last
 
   # @group Construction
-
+  #
+  # Return a new Period from the Date `first` to the Date `last` inclusive. Both
+  # parameters can be either a Date object or a String that can be parsed as a
+  # valid Date with `Date.parse`.
+  #
+  # @param first [Date, String] first date of Period
+  # @param last [Date, String] last date of Period
+  # @raise [ArgumentError] if string is not parseable as a Date or
+  # @raise [ArgumentError] if first date is later than last date
+  # @return [Period]
   def initialize(first, last)
-    case first
-    when String
+    if first.is_a?(Date)
+      @first = first
+    elsif first.respond_to?(:to_s)
       begin
-        first = Date.parse(first)
+        @first = Date.parse(first.to_s)
       rescue ArgumentError => ex
         if ex.message =~ /invalid date/
           raise ArgumentError, "you gave an invalid date '#{first}'"
@@ -29,16 +39,15 @@ class Period
           raise
         end
       end
-    when Date
-      first = first
     else
       raise ArgumentError, 'use Date or String to initialize Period'
     end
 
-    case last
-    when String
+    if last.is_a?(Date)
+      @last = last
+    elsif last.respond_to?(:to_s)
       begin
-        last = Date.parse(last)
+        @last = Date.parse(last.to_s)
       rescue ArgumentError => ex
         if ex.message =~ /invalid date/
           raise ArgumentError, "you gave an invalid date '#{last}'"
@@ -46,14 +55,9 @@ class Period
           raise
         end
       end
-    when Date
-      last = last
     else
       raise ArgumentError, 'use Date or String to initialize Period'
     end
-
-    @first = first
-    @last = last
     if @first > @last
       raise ArgumentError, "Period's first date is later than its last date"
     end
@@ -76,9 +80,24 @@ class Period
     (first..last)
   end
 
+  # Return a string representing this Period using compact format for years,
+  # halves, quarters, or months that represent a whole period; otherwise, just
+  # format the period as 'YYYY-MM-DD to YYYY-MM-DD'.
+  #
+  # @example
+  #   Period.new('2016-01-01', '2016-03-31') #=> '2016-1Q'
+  #   Period.new('2016-01-01', '2016-12-31') #=> '2016'
+  #   Period.new('2016-01-01', '2016-11-30') #=> '2016-01-01 to 2016-11-30'
+  #
+  # @return [String] concise representation of Period
   def to_s
     if first.beginning_of_year? && last.end_of_year? && first.year == last.year
       first.year.to_s
+    elsif first.beginning_of_half? &&
+          last.end_of_half? &&
+          first.year == last.year &&
+          first.half == last.half
+      "#{first.year}-#{first.half}H"
     elsif first.beginning_of_quarter? &&
           last.end_of_quarter? &&
           first.year == last.year &&
@@ -94,7 +113,8 @@ class Period
     end
   end
 
-  # A concise way to print out Periods as 'Period(YYYY-MM-DD..YYYY-MM-DD)'.
+  # A concise way to print out Periods for inspection as
+  # 'Period(YYYY-MM-DD..YYYY-MM-DD)'.
   #
   # @return [String]
   def inspect
@@ -110,17 +130,17 @@ class Period
   include Comparable
 
   # @group Comparison
-
-  # Comparable base: periods are equal only if their first and last dates are
-  # equal.  Sorting will be by first date, then last, so periods starting on
-  # the same date will sort by last date, thus, from smallest to largest in
-  # size.
   #
-  # @param other [Period]
-  # @return [Integer<-1, 0, 1>] -1 if self < other; 0 if self == other; 1 if
-  #   self > other
+  # Comparable base: periods are compared by first, then by last and are equal
+  # only if their first and last dates are equal. Sorting will be by first date,
+  # then last, so periods starting on the same date will sort from smallest to
+  # largest.
+  #
+  # @param other [Period] @return [Integer] -1 if self < other; 0 if self ==
+  # other; 1 if self > other
   def <=>(other)
-    [first, size] <=> [other.first, other.size]
+    return nil unless other.is_a?(Period)
+    [first, last] <=> [other.first, other.last]
   end
 
   # Comparable does not include this.
@@ -128,22 +148,22 @@ class Period
     !(self == other)
   end
 
+  # Return whether this Period contains the given date.
+  #
+  # @param date [Date] date to test
+  # @return [Boolean] is the given date within this Period?
   def contains?(date)
     date = date.to_date if date.respond_to?(:to_date)
     raise ArgumentError, 'argument must be a Date' unless date.is_a?(Date)
     to_range.cover?(date)
   end
-
-  # Case equality checks for inclusion of date in period.
-  def ===(other)
-    contains?(other)
-  end
+  alias === contains?
 
   include Enumerable
 
   # @group Enumeration
 
-  # Enumerable base.  Yield each day in the period.
+  # Yield each day in this Period.
   def each
     d = first
     while d <= last
@@ -152,6 +172,9 @@ class Period
     end
   end
 
+  # Return an Array of the days in the Period that are trading days on the NYSE.
+  #
+  # @return [Array<Date>] trading days in this period
   def trading_days
     select(&:nyse_workday?)
   end
@@ -162,14 +185,8 @@ class Period
   def size
     (last - first + 1).to_i
   end
-
-  def length
-    size
-  end
-
-  def days
-    last - first + 1
-  end
+  alias length size
+  alias days size
 
   # Return the fractional number of months in the period.  By default, use the
   # average number of days in a month, but allow the user to override the
@@ -186,14 +203,22 @@ class Period
   end
 
   # @group Parsing
-
-  # Return a period based on two date specs passed as strings (see
-  # Date.parse_spec), a '''from' and a 'to' spec.  If the to-spec is not given
-  # or is nil, the from-spec is used for both the from- and to-spec.
   #
-  # Period.parse('2014-11') => Period.new('2014-11-01', 2014-11-30')
-  # Period.parse('2014-11', '2015-3Q')
-  #  => Period.new('2014-11-01', 2015-09-30')
+  # Return a period based on two date specs passed as strings (see
+  # `FatCore::Date.parse_spec`), a 'from' and a 'to' spec. The returned period
+  # begins on the first day of the period given as the `from` spec and ends on
+  # the last day given as the `to` spec. If the to spec is not given or is nil,
+  # the from spec is used for both the from- and to-spec.
+  #
+  # @example
+  #   Period.parse('2014-11').inspect                  #=> Period('2014-11-01..2014-11-30')
+  #   Period.parse('2014-11', '2015-3Q').inspect       #=> Period('2014-11-01..2015-09-30')
+  #   # Assuming this executes in December, 2014
+  #   Period.parse('last_month', 'this_month').inspect #=> Period('2014-11-01..2014-12-31')
+  #
+  # @param from [String] spec ala FatCore::Date.parse_spec
+  # @param to [String] spec ala FatCore::Date.parse_spec
+  # @return [Period] from beginning of `from` to end of `to`
   def self.parse(from, to = nil)
     raise ArgumentError, 'Period.parse missing argument' unless from
     to ||= from
@@ -202,11 +227,21 @@ class Period
     Period.new(first, second) if first && second
   end
 
-  # Return a period from a phrase in which the from date is introduced with
-  # 'from' and, optionally, the to-date is introduced with 'to'.
+  # Return a period as in `Period.parse` from a String phrase in which the from
+  # spec is introduced with 'from' and, optionally, the to spec is introduced
+  # with 'to'.  A phrase with only a to spec is treated the same as one with
+  # only a from spec.  If neither 'from' nor 'to' appear in phrase, treat the
+  # whole string as a from spec.
   #
-  # Period.parse_phrase('from 2014-11 to 2015-3Q')
-  #  => Period('2014-11-01', '2015-09-30')
+  # @example
+  #   Period.parse_phrase('from 2014-11 to 2015-3Q') #=> Period('2014-11-01..2015-09-30')
+  #   Period.parse_phrase('from 2014-11')            #=> Period('2014-11-01..2014-11-30')
+  #   Period.parse_phrase('from 2015-3Q')            #=> Period('2015-09-01..2015-12-31')
+  #   Period.parse_phrase('to 2015-3Q')              #=> Period('2015-09-01..2015-12-31')
+  #   Period.parse_phrase('2015-3Q')                 #=> Period('2015-09-01..2015-12-31')
+  #
+  # @param phrase [String] with 'from <spec> to <spec>'
+  # @return [Period] translated from phrase
   def self.parse_phrase(phrase)
     phrase = phrase.clean
     if phrase =~ /\Afrom (.*) to (.*)\z/
@@ -219,6 +254,7 @@ class Period
       from_phrase = $1
     else
       from_phrase = phrase
+      to_phrase = nil
     end
     parse(from_phrase, to_phrase)
   end
@@ -227,7 +263,7 @@ class Period
   # contiguous ones, then return an array of the disjoint periods not
   # contiguous to one another.  An array of periods with no gaps should return
   # an array of only one period spanning all the given periods.
-
+  #
   # Return an array of periods that represent the concatenation of all
   # adjacent periods in the given periods.
   # def self.meld_periods(*periods)
@@ -247,9 +283,13 @@ class Period
   #   end
   #   melded_periods
   # end
-
+  #
   # @group Chunking
-
+  #
+  # An Array of the valid Symbols for calendar chunks plus the Symbol :irregular
+  # for other periods.
+  #
+  # @return [Array<Symbol>]
   def self.chunk_syms
     [:day, :week, :biweek, :semimonth, :month, :bimonth,
      :quarter, :half, :year, :irregular]
