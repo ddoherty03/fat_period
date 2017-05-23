@@ -126,38 +126,7 @@ describe Period do
     end
 
     it 'should know what the valid chunk syms are' do
-      expect(Period.chunk_syms.size).to eq(10)
-    end
-
-    it 'should know the days in a chunk sym' do
-      expect(Period.chunk_sym_to_days(:year)).to eq(365)
-      expect(Period.chunk_sym_to_days(:quarter)).to eq(90)
-      expect(Period.chunk_sym_to_days(:bimonth)).to eq(60)
-      expect(Period.chunk_sym_to_days(:month)).to eq(30)
-      expect(Period.chunk_sym_to_days(:semimonth)).to eq(15)
-      expect(Period.chunk_sym_to_days(:biweek)).to eq(14)
-      expect(Period.chunk_sym_to_days(:week)).to eq(7)
-      expect(Period.chunk_sym_to_days(:day)).to eq(1)
-      expect(Period.chunk_sym_to_days(:irregular)).to eq(30)
-      expect {
-        Period.chunk_sym_to_days(:eon)
-      }.to raise_error ArgumentError
-    end
-
-    it 'should know the maximum days in a chunk sym' do
-      expect(Period.chunk_sym_to_max_days(:year)).to eq(366)
-      expect(Period.chunk_sym_to_max_days(:quarter)).to eq(92)
-      expect(Period.chunk_sym_to_max_days(:bimonth)).to eq(62)
-      expect(Period.chunk_sym_to_max_days(:month)).to eq(31)
-      expect(Period.chunk_sym_to_max_days(:semimonth)).to eq(16)
-      expect(Period.chunk_sym_to_max_days(:biweek)).to eq(14)
-      expect(Period.chunk_sym_to_max_days(:week)).to eq(7)
-      expect(Period.chunk_sym_to_max_days(:day)).to eq(1)
-      expect { Period.chunk_sym_to_max_days(:irregular) }
-        .to raise_error ArgumentError
-      expect {
-        Period.chunk_sym_to_days(:eon)
-      }.to raise_error ArgumentError
+      expect(Period::CHUNKS.size).to eq(10)
     end
 
     it 'should know the chunk sym for given days' do

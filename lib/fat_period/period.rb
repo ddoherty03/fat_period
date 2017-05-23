@@ -286,40 +286,45 @@ class Period
   #
   # @group Chunking
   #
+
   # An Array of the valid Symbols for calendar chunks plus the Symbol :irregular
   # for other periods.
-  #
-  # @return [Array<Symbol>]
-  def self.chunk_syms
-    [:day, :week, :biweek, :semimonth, :month, :bimonth,
-     :quarter, :half, :year, :irregular]
-  end
+  CHUNKS = [
+    :day, :week, :biweek, :semimonth, :month, :bimonth,
+    :quarter, :half, :year, :irregular
+  ]
 
-  # returns the chunk sym represented by the period
+  # An Array of Ranges for the number of days that can be covered by each chunk.
+  CHUNK_RANGE = {
+    day: (1..1), week: (7..7), biweek: (14..14), semimonth: (15..16),
+    month: (28..31), bimonth: (59..62), quarter: (90..92),
+    half: (180..183), year: (365..366)
+  }
+
   def chunk_sym
     if first.beginning_of_year? && last.end_of_year? &&
-       (365..366) === last - first + 1
+       CHUNK_RANGE[:year].cover?(size)
       :year
     elsif first.beginning_of_half? && last.end_of_half? &&
-          (180..183) === last - first + 1
+          CHUNK_RANGE[:half].cover?(size)
       :half
     elsif first.beginning_of_quarter? && last.end_of_quarter? &&
-          (90..92) === last - first + 1
+          CHUNK_RANGE[:quarter].cover?(size)
       :quarter
     elsif first.beginning_of_bimonth? && last.end_of_bimonth? &&
-          (58..62) === last - first + 1
+          CHUNK_RANGE[:bimonth].cover?(size)
       :bimonth
     elsif first.beginning_of_month? && last.end_of_month? &&
-          (28..31) === last - first + 1
+          CHUNK_RANGE[:month].cover?(size)
       :month
     elsif first.beginning_of_semimonth? && last.end_of_semimonth &&
-          (13..16) === last - first + 1
+          CHUNK_RANGE[:semimonth].cover?(size)
       :semimonth
     elsif first.beginning_of_biweek? && last.end_of_biweek? &&
-          last - first + 1 == 14
+          CHUNK_RANGE[:biweek].cover?(size)
       :biweek
     elsif first.beginning_of_week? && last.end_of_week? &&
-          last - first + 1 == 7
+          CHUNK_RANGE[:week].cover?(size)
       :week
     elsif first == last
       :day
@@ -328,40 +333,23 @@ class Period
     end
   end
 
-  def self.chunk_sym_to_days(sym)
-    case sym
-    when :day
-      1
-    when :week
-      7
-    when :biweek
-      14
-    when :semimonth
-      15
-    when :month
-      30
-    when :bimonth
-      60
-    when :quarter
-      90
-    when :half
-      180
-    when :year
-      365
-    when :irregular
-      30
-    else
-      raise ArgumentError, "unknown chunk sym '#{sym}'"
-    end
-  end
-
-  # Name for a period not necessarily ending on calendar boundaries.  For
-  # example, in reporting reconciliation, we want the period from Feb 11,
-  # 2014, to March 10, 2014, be called the 'Month ending March 10, 2014,'
-  # event though the period is not a calendar month.  Using the stricter
-  # Period#chunk_sym, would not allow such looseness.
-  def chunk_name
-    case Period.days_to_chunk_sym(length)
+  # Return a string name for this period based solely on the number of days in
+  # the period. Any period sufficiently close to 30 days will return the string
+  # 'Month', and any period sufficiently close to 90 days will return 'Quarter'.
+  # However for the shorter periods, periods less than month, no tolerance is
+  # applied.  The amount of tolerance for the longer periods can be controlled
+  # with the `tolerance_pct` parameter, which default to 10%.  If no calendar
+  # period corresponds to the length of the period, return 'Period'.
+  #
+  # @example
+  #   Period.new('2015-05-15', '2015-06-17').chunk_name    #=> 'Month' (within 10%)
+  #   Period.new('2015-05-15', '2015-06-17').chunk_name(8) #=> 'Period' (but not 8%)
+  #
+  # @param tolerance_pct [Numeric] long period tolerance as a percent, 10 by default
+  # @return [String] the name for this period based solely on the number of days
+  #   in the period.
+  def chunk_name(tolerance_pct = 10)
+    case Period.days_to_chunk(length, tolerance_pct)
     when :year
       'Year'
     when :half
@@ -382,50 +370,6 @@ class Period
       'Day'
     else
       'Period'
-    end
-  end
-
-  # The smallest number of days possible in each chunk
-  def self.chunk_sym_to_min_days(sym)
-    case sym
-    when :semimonth
-      15
-    when :month
-      28
-    when :bimonth
-      59
-    when :quarter
-      86
-    when :half
-      180
-    when :year
-      365
-    when :irregular
-      raise ArgumentError, 'no minimum period for :irregular chunk'
-    else
-      chunk_sym_to_days(sym)
-    end
-  end
-
-  # The largest number of days possible in each chunk
-  def self.chunk_sym_to_max_days(sym)
-    case sym
-    when :semimonth
-      16
-    when :month
-      31
-    when :bimonth
-      62
-    when :quarter
-      92
-    when :half
-      183
-    when :year
-      366
-    when :irregular
-      raise ArgumentError, 'no maximum period for :irregular chunk'
-    else
-      chunk_sym_to_days(sym)
     end
   end
 
@@ -484,7 +428,10 @@ class Period
   def chunks(size: :month, partial_first: false, partial_last: false,
              round_up_last: false)
     size = size.to_sym
-    if Period.chunk_sym_to_min_days(size) > length
+    unless CHUNKS.include?(size)
+      raise ArgumentError, "unknown chunk size '#{size}'"
+    end
+    if CHUNK_RANGE[size].first > length
       if partial_first || partial_last
         return [self]
       else
