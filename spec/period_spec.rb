@@ -160,13 +160,16 @@ describe Period do
       }.to raise_error ArgumentError
     end
 
-    it 'should know the chunk sym for given days but only :year, :quarter, :month' do
-      (356..376).each { |d| expect(Period.days_to_chunk_sym(d)).to eq(:year) }
-      (180..183).each { |d| expect(Period.days_to_chunk_sym(d)).to eq(:half) }
-      (86..96).each { |d| expect(Period.days_to_chunk_sym(d)).to eq(:quarter) }
-      (28..31).each { |d| expect(Period.days_to_chunk_sym(d)).to eq(:month) }
-      expect(Period.days_to_chunk_sym(7)).to eq(:week)
-      expect(Period.days_to_chunk_sym(1)).to eq(:day)
+    it 'should know the chunk sym for given days' do
+      (365..366).each { |d| expect(Period.days_to_chunk(d)).to eq(:year) }
+      (180..183).each { |d| expect(Period.days_to_chunk(d)).to eq(:half) }
+      (90..92).each { |d| expect(Period.days_to_chunk(d)).to eq(:quarter) }
+      (59..62).each { |d| expect(Period.days_to_chunk(d)).to eq(:bimonth) }
+      (28..31).each { |d| expect(Period.days_to_chunk(d)).to eq(:month) }
+      (15..16).each { |d| expect(Period.days_to_chunk(d)).to eq(:semimonth) }
+      expect(Period.days_to_chunk(14)).to eq(:biweek)
+      expect(Period.days_to_chunk(7)).to eq(:week)
+      expect(Period.days_to_chunk(1)).to eq(:day)
     end
 
     it 'should know what to call a chunk based on its size' do

@@ -429,33 +429,50 @@ class Period
     end
   end
 
-  # Distinguishing between :semimonth and :biweek is impossible in
-  # some cases since a :semimonth can be 14 days just like a :biweek.
-  # This ignores that possiblity and requires a :semimonth to be at
-  # least 15 days.
-  def self.days_to_chunk_sym(days)
-    case days
-    when 356..376
-      :year
-    when 180..183
-      :half
-    when 86..96
-      :quarter
-    when 59..62
-      :bimonth
-    when 26..33
-      :month
-    when 15..16
-      :semimonth
-    when 14
-      :biweek
-    when 7
-      :week
-    when 1
-      :day
-    else
-      :irregular
+  # Return the chunk symbol represented by the number of days given, but allow a
+  # deviation from the minimum and maximum number of days for periods larger
+  # than bimonths. The default tolerance is +/-10%, but that can be adjusted. The
+  # reason for allowing a bit of tolerance for the larger periods is that
+  # financial statements meant to cover a given calendar period are often short
+  # or long by a few days due to such things as weekends, holidays, or
+  # accounting convenience. For example, a bank might issuer "monthly"
+  # statements approximately every 30 days, but issue them earlier or later to
+  # avoid having the closing date fall on a weekend or holiday. We still want to
+  # be able to recognize them as "monthly", even though the period covered might
+  # be a few days shorter or longer than any possible calendar month.  You can
+  # eliminate this "fudge factor" by setting the `tolerance_pct` to zero.  If
+  # the number of days corresponds to none of the defined calendar periods,
+  # return the symbol `:irregular`.
+  #
+  # @example
+  #   Period.days_to_chunk(360)    #=> :year
+  #   Period.days_to_chunk(360, 0) #=> :irregular
+  #   Period.days_to_chunk(88)     #=> :quarter
+  #   Period.days_to_chunk(88, 0)  #=> :irregular
+  #
+  # @param days [Integer] the number of days in the period under test
+  # @param tolerance_pct [Numberic] the percent deviation allowed, e.g. 10 => 10%
+  # @return [Symbol] symbol for the period corresponding to days number of days
+  def self.days_to_chunk(days, tolerance_pct = 10)
+    result = :irregular
+    CHUNK_RANGE.each_pair do |chunk, rng|
+      if [:semimonth, :biweek, :week, :day].include?(chunk)
+        # Be strict for shorter periods.
+        if rng.cover?(days)
+          result = chunk
+          break
+        end
+      else
+        # Allow some tolerance for longer periods.
+        min = (rng.first * ((100.0 - tolerance_pct) / 100.0)).floor
+        max = (rng.last * ((100.0 + tolerance_pct) / 100.0)).floor
+        if (min..max).cover?(days)
+          result = chunk
+          break
+        end
+      end
     end
+    result
   end
 
   # Return an array of Periods wholly-contained within self in chunks of size,
