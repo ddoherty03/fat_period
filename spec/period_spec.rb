@@ -146,11 +146,11 @@ describe Period do
       expect(Period.new('2011-01-01', '2011-06-30').chunk_name).to eq('Half')
       expect(Period.new('2011-01-01', '2011-03-31').chunk_name).to eq('Quarter')
       expect(Period.new('2011-01-01', '2011-02-28').chunk_name)
-        .to eq('Bi-month')
+        .to eq('Bimonth')
       expect(Period.new('2011-01-01', '2011-01-31').chunk_name).to eq('Month')
       expect(Period.new('2011-01-01', '2011-01-15').chunk_name)
-        .to eq('Semi-month')
-      expect(Period.new('2011-01-09', '2011-01-22').chunk_name).to eq('Bi-week')
+        .to eq('Semimonth')
+      expect(Period.new('2011-01-09', '2011-01-22').chunk_name).to eq('Biweek')
       expect(Period.new('2011-01-01', '2011-01-07').chunk_name).to eq('Week')
       expect(Period.new('2011-01-01', '2011-01-01').chunk_name).to eq('Day')
       expect(Period.new('2011-01-01', '2011-01-21').chunk_name).to eq('Period')
@@ -401,7 +401,7 @@ describe Period do
     it 'should raise error for invalid chunk name' do
       expect {
         Period.new('2012-12-28', '2012-12-31').chunks(size: :wally)
-      }.to raise_error /unknown chunk sym/
+      }.to raise_error /unknown chunk size/
     end
 
     it 'should raise error for too large a chunk and no partials allowed' do
@@ -536,9 +536,9 @@ describe Period do
     it 'should know whether an array of periods have overlaps within it' do
       months = (1..12).to_a.map { |k| Period.parse("2013-#{k}") }
       year = Period.parse('2013')
-      expect(year.has_overlaps_within?(months)).to be false
+      expect(year.overlaps_among?(months)).to be false
       months << Period.parse('2013-09-15', '2013-10-02')
-      expect(year.has_overlaps_within?(months)).to be true
+      expect(year.overlaps_among?(months)).to be true
     end
 
     it 'should know whether an array of periods span it' do
@@ -580,6 +580,8 @@ describe Period do
       expect((last_month + month).last).to eq(month.last)
       # It should return a Period, not a Range
       expect((last_month + month).class).to eq(Period)
+      # Disjoint periods
+      expect(Period.parse('2015-2Q') + Period.parse('2015-4Q')).to be_nil
     end
 
     it 'should know its differences with other period' do

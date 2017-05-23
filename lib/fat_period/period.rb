@@ -173,6 +173,7 @@ class Period
   end
 
   # Return an Array of the days in the Period that are trading days on the NYSE.
+  # See FatCore::Date for how trading days are determined.
   #
   # @return [Array<Date>] trading days in this period
   def trading_days
@@ -192,14 +193,14 @@ class Period
   # average number of days in a month, but allow the user to override the
   # assumption with a parameter.
   def months(days_in_month = 30.436875)
-    (days / days_in_month).to_f
+    (days / days_in_month.to_f).to_f
   end
 
   # Return the fractional number of years in the period.  By default, use the
   # average number of days in a year, but allow the user to override the
   # assumption with a parameter.
   def years(days_in_year = 365.2425)
-    (days / days_in_year).to_f
+    (days / days_in_year.to_f).to_f
   end
 
   # @group Parsing
@@ -301,6 +302,17 @@ class Period
     half: (180..183), year: (365..366)
   }
 
+  # Return the chunk symbol represented by this period if it covers a single
+  # calendar period; otherwise return :irregular.
+  #
+  # @example
+  #   Period.new('2016-02-01', '2016-02-29').chunk_sym #=> :month
+  #   Period.new('2016-02-01', '2016-02-28').chunk_sym #=> :irregular
+  #   Period.new('2016-02-01', '2017-02-28').chunk_sym #=> :irregular
+  #   Period.new('2016-01-01', '2016-03-31').chunk_sym #=> :quarter
+  #   Period.new('2016-01-02', '2016-04-01').chunk_sym #=> :irregular
+  #
+  # @return [Symbol]
   def chunk_sym
     if first.beginning_of_year? && last.end_of_year? &&
        CHUNK_RANGE[:year].cover?(size)
@@ -357,13 +369,13 @@ class Period
     when :quarter
       'Quarter'
     when :bimonth
-      'Bi-month'
+      'Bimonth'
     when :month
       'Month'
     when :semimonth
-      'Semi-month'
+      'Semimonth'
     when :biweek
-      'Bi-week'
+      'Biweek'
     when :week
       'Week'
     when :day
@@ -421,10 +433,73 @@ class Period
 
   # Return an array of Periods wholly-contained within self in chunks of size,
   # defaulting to monthly chunks. Partial chunks at the beginning and end of
-  # self are not included unless partial_first or partial_last, respectively,
-  # are set true. The last chunk can be made to extend beyond the end of self to
-  # make it a whole chunk if round_up_last is set true, in which case,
-  # partial_last is ignored.
+  # self are not included unless `partial_first` or `partial_last`,
+  # respectively, are set true. The last chunk can be made to extend beyond the
+  # end of self to make it a whole chunk if `round_up_last` is set true, in
+  # which case, partial_last is ignored.
+  #
+  # @example
+  #   Period.parse('2015').chunks(size: :month) #=>
+  #    [Period(2015-01-01..2015-01-31),
+  #     Period(2015-02-01..2015-02-28),
+  #     Period(2015-03-01..2015-03-31),
+  #     Period(2015-04-01..2015-04-30),
+  #     Period(2015-05-01..2015-05-31),
+  #     Period(2015-06-01..2015-06-30),
+  #     Period(2015-07-01..2015-07-31),
+  #     Period(2015-08-01..2015-08-31),
+  #     Period(2015-09-01..2015-09-30),
+  #     Period(2015-10-01..2015-10-31),
+  #     Period(2015-11-01..2015-11-30),
+  #     Period(2015-12-01..2015-12-31)
+  #    ]
+  #
+  #   Period.parse('2015').chunks(size: :week) #=>
+  #    [Period(2015-01-05..2015-01-11), # Note that first week starts after Jan 1.
+  #     Period(2015-01-12..2015-01-18),
+  #     Period(2015-01-19..2015-01-25),
+  #     Period(2015-01-26..2015-02-01),
+  #     ...
+  #     Period(2015-12-07..2015-12-13),
+  #     Period(2015-12-14..2015-12-20),
+  #     Period(2015-12-21..2015-12-27)] # Note that last week ends before Dec 31
+  #
+  #   Period.parse('2015').chunks(size: :week, partial_first: true, partial_last: true) #=>
+  #    [Period(2015-01-01..2015-01-04), # Note the partial week starting Jan 1
+  #     Period(2015-01-05..2015-01-11),
+  #     Period(2015-01-12..2015-01-18),
+  #     Period(2015-01-19..2015-01-25),
+  #     Period(2015-01-26..2015-02-01),
+  #     ...
+  #     Period(2015-12-07..2015-12-13),
+  #     Period(2015-12-14..2015-12-20),
+  #     Period(2015-12-21..2015-12-27)
+  #     Period(2015-12-28..2015-12-31) # Note partial week ending Dec 31
+  #     ]
+  #
+  #   Period.parse('2015').chunks(size: :week, partial_first: true, round_up_last: true) #=>
+  #    [Period(2015-01-01..2015-01-04), # Note the partial week starting Jan 1
+  #     Period(2015-01-05..2015-01-11),
+  #     Period(2015-01-12..2015-01-18),
+  #     Period(2015-01-19..2015-01-25),
+  #     Period(2015-01-26..2015-02-01),
+  #     ...
+  #     Period(2015-12-07..2015-12-13),
+  #     Period(2015-12-14..2015-12-20),
+  #     Period(2015-12-21..2015-12-27)
+  #     Period(2015-12-28..2016-01-03) # Note full week extending beyond self
+  #     ]
+  #
+  # @raise ArgumentError if size of chunks is larger than self or if an invalid
+  #   chunk size.
+  # @param size [Symbol] a chunk symbol, :year, :half. :quarter, etc.
+  # @param partial_first [Boolean] allow a period less than a full :size period
+  #   as the first period in the returned array.
+  # @param partial_last [Boolean] allow a period less than a full :size period
+  #   as the last period in the returned array.
+  # @param round_up_last [Boolean] allow the last period in the returned array
+  #   to extend beyond the end of self.
+  # @return [Array<Period>] periods that subdivide self into chunks of size, `size`
   def chunks(size: :month, partial_first: false, partial_last: false,
              round_up_last: false)
     size = size.to_sym
@@ -503,22 +578,70 @@ class Period
 
   # @group Set operations
 
+  # Is this period contained wholly within or coincident with `other`?
+  #
+  # @example
+  #   Period.parse('2015-2Q').subset_of?(Period.parse('2015'))    #=> true
+  #   Period.parse('2015-2Q').subset_of?(Period.parse('2015-2Q')) #=> true
+  #   Period.parse('2015-2Q').subset_of?(Period.parse('2015-02')) #=> false
+  #
+  # @param other [Period] other Period
+  # @return [Boolean] self within or coincident with `other`?
   def subset_of?(other)
     to_range.subset_of?(other.to_range)
   end
 
+  # Is this period contained wholly within but not coincident with `other`?
+  #
+  # @example
+  #   Period.parse('2015-2Q').proper_subset_of?(Period.parse('2015'))    #=> true
+  #   Period.parse('2015-2Q').proper_subset_of?(Period.parse('2015-2Q')) #=> false
+  #   Period.parse('2015-2Q').proper_subset_of?(Period.parse('2015-02')) #=> false
+  #
+  # @param other [Period] other Period
+  # @return [Boolean] self within `other`?
   def proper_subset_of?(other)
     to_range.proper_subset_of?(other.to_range)
   end
 
+  # Does this period wholly contain or is coincident with `other`?
+  #
+  # @example
+  #   Period.parse('2015').superset_of?(Period.parse('2015-2Q'))    #=> true
+  #   Period.parse('2015-2Q').superset_of?(Period.parse('2015-2Q')) #=> true
+  #   Period.parse('2015-02').superset_of?(Period.parse('2015-2Q')) #=> false
+  #
+  # @param other [Period] other Period
+  # @return [Boolean] self contains or coincident with `other`?
   def superset_of?(other)
     to_range.superset_of?(other.to_range)
   end
 
+  # Does this period wholly contain but not coincident with `other`?
+  #
+  # @example
+  #   Period.parse('2015').proper_superset_of?(Period.parse('2015-2Q'))    #=> true
+  #   Period.parse('2015-2Q').proper_superset_of?(Period.parse('2015-2Q')) #=> false
+  #   Period.parse('2015-02').proper_superset_of?(Period.parse('2015-2Q')) #=> false
+  #
+  # @param other [Period] other Period
+  # @return [Boolean] self contains `other`?
   def proper_superset_of?(other)
     to_range.proper_superset_of?(other.to_range)
   end
 
+  # Return the Period that is the intersection of self with `other` or nil if
+  # there is no intersection.
+  #
+  # @example
+  #   Period.parse('2015-3Q') & Period.parse('2015-2Q') #=> nil
+  #   Period.parse('2015') & Period.parse('2015-2Q')    #=> Period(2015-2Q)
+  #   pp1 = Period.parse_phrase('from 2015 to 2015-3Q') #=> Period(2015-01-01..2015-09-30)
+  #   pp2 = Period.parse_phrase('from 2015-2H')         #=> Period(2015-07-01..2015-12-31)
+  #   pp1 & pp2                                         #=> Period(2015-07-01..2015-09-30)
+  #
+  # @param other [Period] other Period
+  # @return [Period, nil] self intersect `other`?
   def intersection(other)
     result = to_range.intersection(other.to_range)
     if result.nil?
@@ -530,32 +653,131 @@ class Period
   alias & intersection
   alias narrow_to intersection
 
+  # Return the Period that is the union of self with `other` or nil if
+  # they neither overlap nor are contiguous
+  #
+  # @example
+  #   Period.parse('2015-3Q') + Period.parse('2015-2Q')    #=> Period(2015-04-01..2015-09-30)
+  #   Period.parse('2015') + Period.parse('2015-2Q')       #=> Period(2015-01-01..2015-12-31)
+  #   Period.parse('2015') + Period.parse('2017')          #=> nil
+  #   pp1 = Period.parse_phrase('from 2015-4Q to 2016-1H') #=> Period(2015-10-01-2015..2015-12-31)
+  #   pp2 = Period.parse_phrase('from 2015-3Q to 2015-11') #=> Period(2015-07-01-2015..2015-11-30)
+  #   pp1 + pp2                                            #=> Period(2015-10-01..2015-11-30)
+  #
+  # @param other [Period] other Period
+  # @return [Period, nil] self union `other`?
   def union(other)
     result = to_range.union(other.to_range)
+    return nil if result.nil?
     Period.new(result.first, result.last)
   end
   alias + union
 
+  # Return an array of periods that are this period excluding any overlap with
+  # other. If there is no overlap, return an array with a period equal to self
+  # as the sole member.
+  #
+  # @example
+  #   Period.parse('2015-1Q') - Period.parse('2015-02')
+  #     #=> [Period(2015-01-01..2015-01-31), Period(2015-03-01..2015-03-31)]
+  #   Period.parse('2015-2Q') - Period.parse('2015-02')
+  #     #=> [Period(2015-04-01..2015-06-30)]
+  #
+  # @param other [Period] the other period to exclude from self
+  # @return [Array<Period>] self less the part of other that overlaps
   def difference(other)
     ranges = to_range.difference(other.to_range)
     ranges.each.map { |r| Period.new(r.first, r.last) }
   end
   alias - difference
 
+  # Return whether this period overlaps the `other` period.  To overlap, the
+  # periods must have at least one day in common.
+  #
+  # @example
+  #   Period.parse('2012').overlaps?(Period.parse('2016')) #=> false
+  #   Period.parse('2016-32W').overlaps?(Period.parse('2016')) #=> true
+  #   pp1 = Period.new('2016-03-12', '2016-03-15')
+  #   pp2 = Period.new('2016-03-16', '2016-03-25')
+  #   pp1.overlaps?(pp2) #=> false (being contiguous is not overlapping)
+  #
+  # @param other [Period] the other period to test for overlap
+  # @return [Boolean] does self overlap with other?
   def overlaps?(other)
     to_range.overlaps?(other.to_range)
   end
 
-  # Return whether any of the Periods that are within self overlap one
-  # another
-  def has_overlaps_within?(periods)
+  # Return whether any of the given periods overlap any other.
+  #
+  # @example
+  #   pds = []
+  #   pds << Period.parse('2015-1H')
+  #   pds << Period.parse('2016-2H')
+  #   pds << Period.parse('2015-04')
+  #   Period.overlaps_among?(pds) #=> true
+  #
+  # @param periods [Array<Period>] periods to test for overlaps
+  # @return [Boolean] true if any one of periods overlaps another
+  def self.overlaps_among?(periods)
+    Range.overlaps_among?(periods.map(&:to_range))
+  end
+
+  # Return whether any of the given periods overlap any other but only if the
+  # overlaps occur within the self; overlaps outside self are ignored.
+  #
+  # @example
+  #   pds = []
+  #   pds << Period.parse('2015-1H')
+  #   pds << Period.parse('2016-2H')
+  #   pds << Period.parse('2015-04')
+  #   yr2015 = Period.parse('2015')
+  #   yr2016 = Period.parse('2016')
+  #   yr2015.overlaps_among?(pds) #=> true
+  #   yr2016.overlaps_among?(pds) #=> false (overlap is in 2015)
+  #
+  # @param periods [Array<Period>] periods to test for overlaps
+  # @return [Boolean] true if any one of periods overlaps another
+  def overlaps_among?(periods)
     to_range.overlaps_among?(periods.map(&:to_range))
   end
 
+  # Return whether the given periods "span" self, that is, do they collectively
+  # cover all of self with no overlaps and no gaps?
+  #
+  # @example
+  #   ppds = []
+  #   ppds << Period.parse('2016-1Q')
+  #   ppds << Period.parse('2016-2Q')
+  #   ppds << Period.parse('2016-2H')
+  #   Period.parse('2016').spanned_by?(ppds) #=> true
+  #
+  #   # There's a bit of the year at the beginning that isn't covered by
+  #   # one of these weeks:
+  #   ppds = Period.parse('2016').chunks(size: :week)
+  #   Period.parse('2016').spanned_by?(ppds) #=> false
+  #
+  # @param periods [Array<Period>] periods to test for spanning self
+  # @return [Boolean] do periods span self?
   def spanned_by?(periods)
     to_range.spanned_by?(periods.map(&:to_range))
   end
 
+  # Return an Array of Periods representing the gaps within self not covered by
+  # the Array of Periods `periods`.  Overlaps among the periods do not affect
+  # the result nor do gaps outside the range of self.  Ordering among the
+  # `periods` does not matter.
+  #
+  # @example
+  #   some_qs = []
+  #   some_qs << Period.parse('2015-1Q')
+  #   some_qs << Period.parse('2015-3Q')
+  #   some_qs << Period.parse('2015-11')
+  #   some_qs << Period.parse('2015-12')
+  #   Period.parse('2015').gaps(some_qs) #=>
+  #     [Period(2015-04-01..2015-06-30), Period(2015-10-01..2015-10-31)]
+  #
+  # @param periods [Array<Period>] periods to examine for coverage of self
+  # @return [Array<Periods>] periods that are not covered by `periods`
   def gaps(periods)
     to_range.gaps(periods.map(&:to_range))
       .map { |r| Period.new(r.first, r.last) }
