@@ -27,5 +27,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'pry-doc'
   spec.add_development_dependency 'pry-byebug'
 
-  spec.add_runtime_dependency 'fat_core', '~> 4.0', '>= 4.1'
+  spec.add_runtime_dependency 'fat_core', '>= 4.1'
 end
