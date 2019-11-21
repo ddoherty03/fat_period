@@ -4,6 +4,8 @@ require 'fat_core/date'
 require 'fat_core/range'
 require 'fat_core/string'
 
+# The Period class represents a range of Dates and supports a variety of
+# operations on those ranges.
 class Period
   # Return the first Date of the Period
   #
@@ -669,6 +671,7 @@ class Period
   def union(other)
     result = to_range.union(other.to_range)
     return nil if result.nil?
+
     Period.new(result.first, result.last)
   end
   alias + union
