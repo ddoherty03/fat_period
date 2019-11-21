@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ddoherty03/fat_period.svg?branch=master)](https://travis-ci.org/ddoherty03/fat_period)
+
 # FatPeriod
 
 Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/fat_period`. To experiment with that code, run `bin/console` for an interactive prompt.
@@ -33,4 +35,3 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/Daniel E. Doherty/fat_period.
-
