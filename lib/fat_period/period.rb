@@ -34,12 +34,12 @@ class Period
     elsif first.respond_to?(:to_s)
       begin
         @first = Date.parse(first.to_s)
-      rescue ArgumentError => ex
-        if ex.message =~ /invalid date/
-          raise ArgumentError, "you gave an invalid date '#{first}'"
-        else
-          raise
+      rescue ArgumentError => e
+        if e.message =~ /invalid date/
+          raise ArgumentError, "invalid date '#{first}'"
         end
+
+        raise
       end
     else
       raise ArgumentError, 'use Date or String to initialize Period'
@@ -50,19 +50,19 @@ class Period
     elsif last.respond_to?(:to_s)
       begin
         @last = Date.parse(last.to_s)
-      rescue ArgumentError => ex
-        if ex.message =~ /invalid date/
+      rescue ArgumentError => e
+        if e.message =~ /invalid date/
           raise ArgumentError, "you gave an invalid date '#{last}'"
-        else
-          raise
         end
+
+        raise
       end
     else
       raise ArgumentError, 'use Date or String to initialize Period'
     end
-    if @first > @last
-      raise ArgumentError, "Period's first date is later than its last date"
-    end
+    return unless @first > @last
+
+    raise ArgumentError, "Period's first date is later than its last date"
   end
 
   # These need to come after initialize is defined
@@ -128,7 +128,6 @@ class Period
     "#{first.iso}--#{last.iso}"
   end
 
-
   include Comparable
 
   # @group Comparison
@@ -142,6 +141,7 @@ class Period
   # other; 1 if self > other
   def <=>(other)
     return nil unless other.is_a?(Period)
+
     [first, last] <=> [other.first, other.last]
   end
 
@@ -157,6 +157,7 @@ class Period
   def contains?(date)
     date = date.to_date if date.respond_to?(:to_date)
     raise ArgumentError, 'argument must be a Date' unless date.is_a?(Date)
+
     to_range.cover?(date)
   end
   alias === contains?
@@ -224,6 +225,7 @@ class Period
   # @return [Period] from beginning of `from` to end of `to`
   def self.parse(from, to = nil)
     raise ArgumentError, 'Period.parse missing argument' unless from
+
     to ||= from
     first = Date.parse_spec(from, :from)
     second = Date.parse_spec(to, :to)
@@ -292,17 +294,15 @@ class Period
 
   # An Array of the valid Symbols for calendar chunks plus the Symbol :irregular
   # for other periods.
-  CHUNKS = [
-    :day, :week, :biweek, :semimonth, :month, :bimonth,
-    :quarter, :half, :year, :irregular
-  ]
+  CHUNKS = %i[day week biweek semimonth month bimonth quarter
+              half year irregular].freeze
 
   # An Array of Ranges for the number of days that can be covered by each chunk.
   CHUNK_RANGE = {
     day: (1..1), week: (7..7), biweek: (14..14), semimonth: (15..16),
     month: (28..31), bimonth: (59..62), quarter: (90..92),
     half: (180..183), year: (365..366)
-  }
+  }.freeze
 
   # Return the chunk symbol represented by this period if it covers a single
   # calendar period; otherwise return :irregular.
@@ -508,13 +508,14 @@ class Period
     unless CHUNKS.include?(size)
       raise ArgumentError, "unknown chunk size '#{size}'"
     end
+
     if CHUNK_RANGE[size].first > length
-      if partial_first || partial_last
-        return [self]
-      else
-        raise ArgumentError, "any #{size} is longer than this period's #{length} days"
-      end
+      return [self] if partial_first || partial_last
+
+      msg = "any #{size} is longer than this period's #{length} days"
+      raise ArgumentError, msg
     end
+
     result = []
     chunk_start = first.dup
     while chunk_start <= last
