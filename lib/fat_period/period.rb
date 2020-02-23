@@ -73,6 +73,64 @@ class Period
   # Period from commercial beginning of time to commercial end of time.
   FOREVER = Period.new(Date::BOT, Date::EOT)
 
+  # @group Parsing
+  #
+  # Return a period based on two date specs passed as strings (see
+  # `FatCore::Date.parse_spec`), a 'from' and a 'to' spec. The returned period
+  # begins on the first day of the period given as the `from` spec and ends on
+  # the last day given as the `to` spec. If the to spec is not given or is nil,
+  # the from spec is used for both the from- and to-spec.
+  #
+  # @example
+  #   Period.parse('2014-11').inspect                  #=> Period('2014-11-01..2014-11-30')
+  #   Period.parse('2014-11', '2015-3Q').inspect       #=> Period('2014-11-01..2015-09-30')
+  #   # Assuming this executes in December, 2014
+  #   Period.parse('last_month', 'this_month').inspect #=> Period('2014-11-01..2014-12-31')
+  #
+  # @param from [String] spec ala FatCore::Date.parse_spec
+  # @param to [String] spec ala FatCore::Date.parse_spec
+  # @return [Period] from beginning of `from` to end of `to`
+  def self.parse(from, to = nil)
+    raise ArgumentError, 'Period.parse missing argument' unless from
+
+    to ||= from
+    first = Date.parse_spec(from, :from)
+    second = Date.parse_spec(to, :to)
+    Period.new(first, second) if first && second
+  end
+
+  # Return a period as in `Period.parse` from a String phrase in which the from
+  # spec is introduced with 'from' and, optionally, the to spec is introduced
+  # with 'to'.  A phrase with only a to spec is treated the same as one with
+  # only a from spec.  If neither 'from' nor 'to' appear in phrase, treat the
+  # whole string as a from spec.
+  #
+  # @example
+  #   Period.parse_phrase('from 2014-11 to 2015-3Q') #=> Period('2014-11-01..2015-09-30')
+  #   Period.parse_phrase('from 2014-11')            #=> Period('2014-11-01..2014-11-30')
+  #   Period.parse_phrase('from 2015-3Q')            #=> Period('2015-09-01..2015-12-31')
+  #   Period.parse_phrase('to 2015-3Q')              #=> Period('2015-09-01..2015-12-31')
+  #   Period.parse_phrase('2015-3Q')                 #=> Period('2015-09-01..2015-12-31')
+  #
+  # @param phrase [String] with 'from <spec> to <spec>'
+  # @return [Period] translated from phrase
+  def self.parse_phrase(phrase)
+    phrase = phrase.clean
+    if phrase =~ /\Afrom (.*) to (.*)\z/
+      from_phrase = $1
+      to_phrase = $2
+    elsif phrase =~ /\Afrom (.*)\z/
+      from_phrase = $1
+      to_phrase = nil
+    elsif phrase =~ /\Ato (.*)\z/
+      from_phrase = $1
+    else
+      from_phrase = phrase
+      to_phrase = nil
+    end
+    parse(from_phrase, to_phrase)
+  end
+
   # @group Conversion
 
   # Convert this Period to a Range.
@@ -204,64 +262,6 @@ class Period
   # assumption with a parameter.
   def years(days_in_year = 365.2425)
     (days / days_in_year.to_f).to_f
-  end
-
-  # @group Parsing
-  #
-  # Return a period based on two date specs passed as strings (see
-  # `FatCore::Date.parse_spec`), a 'from' and a 'to' spec. The returned period
-  # begins on the first day of the period given as the `from` spec and ends on
-  # the last day given as the `to` spec. If the to spec is not given or is nil,
-  # the from spec is used for both the from- and to-spec.
-  #
-  # @example
-  #   Period.parse('2014-11').inspect                  #=> Period('2014-11-01..2014-11-30')
-  #   Period.parse('2014-11', '2015-3Q').inspect       #=> Period('2014-11-01..2015-09-30')
-  #   # Assuming this executes in December, 2014
-  #   Period.parse('last_month', 'this_month').inspect #=> Period('2014-11-01..2014-12-31')
-  #
-  # @param from [String] spec ala FatCore::Date.parse_spec
-  # @param to [String] spec ala FatCore::Date.parse_spec
-  # @return [Period] from beginning of `from` to end of `to`
-  def self.parse(from, to = nil)
-    raise ArgumentError, 'Period.parse missing argument' unless from
-
-    to ||= from
-    first = Date.parse_spec(from, :from)
-    second = Date.parse_spec(to, :to)
-    Period.new(first, second) if first && second
-  end
-
-  # Return a period as in `Period.parse` from a String phrase in which the from
-  # spec is introduced with 'from' and, optionally, the to spec is introduced
-  # with 'to'.  A phrase with only a to spec is treated the same as one with
-  # only a from spec.  If neither 'from' nor 'to' appear in phrase, treat the
-  # whole string as a from spec.
-  #
-  # @example
-  #   Period.parse_phrase('from 2014-11 to 2015-3Q') #=> Period('2014-11-01..2015-09-30')
-  #   Period.parse_phrase('from 2014-11')            #=> Period('2014-11-01..2014-11-30')
-  #   Period.parse_phrase('from 2015-3Q')            #=> Period('2015-09-01..2015-12-31')
-  #   Period.parse_phrase('to 2015-3Q')              #=> Period('2015-09-01..2015-12-31')
-  #   Period.parse_phrase('2015-3Q')                 #=> Period('2015-09-01..2015-12-31')
-  #
-  # @param phrase [String] with 'from <spec> to <spec>'
-  # @return [Period] translated from phrase
-  def self.parse_phrase(phrase)
-    phrase = phrase.clean
-    if phrase =~ /\Afrom (.*) to (.*)\z/
-      from_phrase = $1
-      to_phrase = $2
-    elsif phrase =~ /\Afrom (.*)\z/
-      from_phrase = $1
-      to_phrase = nil
-    elsif phrase =~ /\Ato (.*)\z/
-      from_phrase = $1
-    else
-      from_phrase = phrase
-      to_phrase = nil
-    end
-    parse(from_phrase, to_phrase)
   end
 
   # Possibly useful class method to take an array of periods and join all the
