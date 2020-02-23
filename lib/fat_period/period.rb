@@ -304,6 +304,80 @@ class Period
     half: (180..183), year: (365..366)
   }.freeze
 
+  # Return a period representing a chunk containing a given Date.
+  def self.day_containing(date)
+    Period.new(date, date)
+  end
+
+  def self.week_containing(date)
+    Period.new(date.beginning_of_week, date.end_of_week)
+  end
+
+  def self.biweek_containing(date)
+    Period.new(date.beginning_of_biweek, date.end_of_biweek)
+  end
+
+  def self.semimonth_containing(date)
+    Period.new(date.beginning_of_semimonth, date.end_of_semimonth)
+  end
+
+  def self.month_containing(date)
+    Period.new(date.beginning_of_month, date.end_of_month)
+  end
+
+  def self.bimonth_containing(date)
+    Period.new(date.beginning_of_bimonth, date.end_of_bimonth)
+  end
+
+  def self.quarter_containing(date)
+    Period.new(date.beginning_of_quarter, date.end_of_quarter)
+  end
+
+  def self.half_containing(date)
+    Period.new(date.beginning_of_half, date.end_of_half)
+  end
+
+  def self.year_containing(date)
+    Period.new(date.beginning_of_year, date.end_of_year)
+  end
+
+  # Return a Period representing a chunk containing today.
+  def self.this_day
+    day_containing(Date.current)
+  end
+
+  def self.this_week
+    week_containing(Date.current)
+  end
+
+  def self.this_biweek
+    biweek_containing(Date.current)
+  end
+
+  def self.this_semimonth
+    semimonth_containing(Date.current)
+  end
+
+  def self.this_month
+    month_containing(Date.current)
+  end
+
+  def self.this_bimonth
+    bimonth_containing(Date.current)
+  end
+
+  def self.this_quarter
+    quarter_containing(Date.current)
+  end
+
+  def self.this_half
+    half_containing(Date.current)
+  end
+
+  def self.this_year
+    year_containing(Date.current)
+  end
+
   # Return the chunk symbol represented by this period if it covers a single
   # calendar period; otherwise return :irregular.
   #

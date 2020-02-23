@@ -621,5 +621,21 @@ describe Period do
       expect(gaps.last.first).to eq(Date.parse('2014-05-12'))
       expect(gaps.last.last).to eq(Date.parse('2014-05-24'))
     end
+
+    it 'should be able to expand a date to a chunk' do
+      # These should also exercise the chunk_containing methods, since they
+      # are called by the this_chunk methods
+      expect(Period.this_day.first).to eq(Date.current)
+      expect(Period.this_day.last).to eq(Date.current)
+
+      Period::CHUNKS.each do |chunk|
+        next if chunk == :irregular
+
+        expect(Period.send("this_#{chunk}").first)
+          .to eq(Date.current.send("beginning_of_#{chunk}").to_date)
+        expect(Period.send("this_#{chunk}").last)
+          .to eq(Date.current.send("end_of_#{chunk}").to_date)
+      end
+    end
   end
 end
