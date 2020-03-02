@@ -29,37 +29,9 @@ class Period
   # @raise [ArgumentError] if first date is later than last date
   # @return [Period]
   def initialize(first, last)
-    if first.is_a?(Date)
-      @first = first
-    elsif first.respond_to?(:to_s)
-      begin
-        @first = Date.parse(first.to_s)
-      rescue ArgumentError => e
-        if e.message =~ /invalid date/
-          raise ArgumentError, "invalid date '#{first}'"
-        end
+    @first = Date.ensure_date(first)
+    @last = Date.ensure_date(last)
 
-        raise
-      end
-    else
-      raise ArgumentError, 'use Date or String to initialize Period'
-    end
-
-    if last.is_a?(Date)
-      @last = last
-    elsif last.respond_to?(:to_s)
-      begin
-        @last = Date.parse(last.to_s)
-      rescue ArgumentError => e
-        if e.message =~ /invalid date/
-          raise ArgumentError, "you gave an invalid date '#{last}'"
-        end
-
-        raise
-      end
-    else
-      raise ArgumentError, 'use Date or String to initialize Period'
-    end
     return unless @first > @last
 
     raise ArgumentError, "Period's first date is later than its last date"

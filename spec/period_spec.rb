@@ -18,19 +18,33 @@ describe Period do
         .to be_instance_of Period
     end
 
+    it 'should be initializable with DateTime' do
+      dt1 = DateTime.new(2013, 1, 1, 4, 13, 8)
+      dt2 = DateTime.new(2015, 1, 1, 4, 13, 8)
+      expect(Period.new(dt1, dt2))
+        .to be_instance_of Period
+    end
+
+    it 'should be initializable with Time' do
+      t1 = Time.new(2013, 1, 1, 4, 13, 8)
+      t2 = Time.new(2015, 1, 1, 4, 13, 8)
+      expect(Period.new(t1, t2))
+        .to be_instance_of Period
+    end
+
     it 'should raise a ArgumentError if last > first' do
       expect {
         Period.new('2013-01-01', '2012-12-31')
-      }.to raise_error ArgumentError
+      }.to raise_error ArgumentError, /first date is later/
     end
 
     it 'should raise a ArgumentError if initialized with invalid date string' do
       expect {
         Period.new('2013-01-01', '2013-12-32')
-      }.to raise_error ArgumentError
+      }.to raise_error ArgumentError, /invalid date/
       expect {
         Period.new('2013-13-01', '2013-12-31')
-      }.to raise_error ArgumentError
+      }.to raise_error ArgumentError, /invalid date/
     end
 
     it 'should raise a ArgumentError if initialized otherwise' do
