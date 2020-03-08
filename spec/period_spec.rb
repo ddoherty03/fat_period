@@ -360,6 +360,17 @@ describe Period do
       expect(chunks.last.last.iso).to eq('2012-12-31')
     end
 
+    it 'should be able to chunk into months with only partials' do
+      chunks =
+        Period.new('2017-05-21', '2017-06-07')
+          .chunks(size: :month, partial_first: true, partial_last: true)
+      expect(chunks.size).to eq(2)
+      expect(chunks[0].first.iso).to eq('2017-05-21')
+      expect(chunks[0].last.iso).to eq('2017-05-31')
+      expect(chunks[1].first.iso).to eq('2017-06-01')
+      expect(chunks[1].last.iso).to eq('2017-06-07')
+    end
+
     it 'should be able to chunk into semimonths' do
       chunks = Period.new('2009-12-25', '2013-01-10').chunks(size: :semimonth)
       expect(chunks.size).to eq(72)
@@ -418,11 +429,10 @@ describe Period do
       }.to raise_error /unknown chunk size/
     end
 
-    it 'should raise error for too large a chunk and no partials allowed' do
-      expect {
-        Period.new('2012-12-01', '2012-12-31').
-          chunks(size: :bimonth, partial_first: false, partial_last: false)
-      }.to raise_error /longer than/
+    it 'should return an empty array for too large a chunk and no partials allowed' do
+      expect(Period.new('2012-12-01', '2012-12-31')
+               .chunks(size: :bimonth, partial_first: false,
+                       partial_last: false)).to be_empty
     end
 
     it 'should return period itself for too large chunk if partials allowed' do

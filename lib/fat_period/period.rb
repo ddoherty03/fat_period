@@ -555,74 +555,43 @@ class Period
       raise ArgumentError, "unknown chunk size '#{size}'"
     end
 
-    if CHUNK_RANGE[size].first > length
-      return [self] if partial_first || partial_last
-
-      msg = "any #{size} is longer than this period's #{length} days"
-      raise ArgumentError, msg
-    end
-
     result = []
     chunk_start = first.dup
-    while chunk_start <= last
-      case size
-      when :year
-        unless partial_first
-          chunk_start += 1.day until chunk_start.beginning_of_year?
-        end
-        chunk_end = chunk_start.end_of_year
-      when :half
-        unless partial_first
-          chunk_start += 1.day until chunk_start.beginning_of_half?
-        end
-        chunk_end = chunk_start.end_of_half
-      when :quarter
-        unless partial_first
-          chunk_start += 1.day until chunk_start.beginning_of_quarter?
-        end
-        chunk_end = chunk_start.end_of_quarter
-      when :bimonth
-        unless partial_first
-          chunk_start += 1.day until chunk_start.beginning_of_bimonth?
-        end
-        chunk_end = (chunk_start.end_of_month + 1.day).end_of_month
-      when :month
-        unless partial_first
-          chunk_start += 1.day until chunk_start.beginning_of_month?
-        end
-        chunk_end = chunk_start.end_of_month
-      when :semimonth
-        unless partial_first
-          chunk_start += 1.day until chunk_start.beginning_of_semimonth?
-        end
-        chunk_end = chunk_start.end_of_semimonth
-      when :biweek
-        unless partial_first
-          chunk_start += 1.day until chunk_start.beginning_of_biweek?
-        end
-        chunk_end = chunk_start.end_of_biweek
-      when :week
-        unless partial_first
-          chunk_start += 1.day until chunk_start.beginning_of_week?
-        end
-        chunk_end = chunk_start.end_of_week
-      when :day
-        chunk_end = chunk_start
-      else
-        raise ArgumentError, "invalid chunk size '#{size}'"
-      end
-      if chunk_end <= last
-        result << Period.new(chunk_start, chunk_end)
-      elsif round_up_last
+    chunk_end = chunk_start.end_of_chunk(size)
+    if chunk_start.beginning_of_chunk?(size) || partial_first
+      # Keep the first chunk if it's whole or partials allowed
+      result << Period.new(chunk_start, chunk_end)
+      chunk_start = chunk_end + 1.day
+      chunk_end = chunk_start.end_of_chunk(size)
+    else
+      # Discard the partial first or move to next whole chunk
+      chunk_start = chunk_end + 1.day
+      chunk_end = chunk_start.end_of_chunk(size)
+    end
+    # Add Whole chunks
+    while chunk_end <= last
+      result << Period.new(chunk_start, chunk_end)
+      chunk_start = chunk_end + 1.day
+      chunk_end = chunk_start.end_of_chunk(size)
+    end
+    # Possibly append the final chunk to result
+    if chunk_start < last
+      if round_up_last
         result << Period.new(chunk_start, chunk_end)
       elsif partial_last
         result << Period.new(chunk_start, last)
       else
-        break
+        result
       end
-      chunk_start = result.last.last + 1.day
+    elsif partial_last
+      # Catch the case where the period is too small to make a whole chunk and
+      # partial_first is false, so it did not get included as the initial
+      # partial chunk, yet a partial_last is allowed, so include the whole
+      # period as a partial chunk.
+      result << Period.new(first, last)
+    else
+      result
     end
-    result
   end
 
   # @group Set operations
