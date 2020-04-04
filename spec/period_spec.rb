@@ -667,5 +667,15 @@ describe Period do
           .to eq(Date.current.send("end_of_#{chunk}").to_date)
       end
     end
+
+    it 'should be able to expand a date to an arbitrary chunk' do
+      date = Date.parse('2020-03-16')
+      expect(Period.chunk_containing(date, :week))
+        .to eq(Period.week_containing(date))
+      expect(Period.chunk_containing(date, :month))
+        .to eq(Period.month_containing(date))
+      expect(Period.chunk_containing(date, :quarter))
+        .to eq(Period.quarter_containing(date))
+    end
   end
 end

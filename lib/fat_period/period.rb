@@ -323,6 +323,19 @@ class Period
     Period.new(date.beginning_of_year, date.end_of_year)
   end
 
+  def self.chunk_containing(date, chunk)
+    raise ArgumentError, 'chunk is nil' unless chunk
+
+    chunk = chunk.to_sym
+    unless CHUNKS.include?(chunk)
+      raise ArgumentError, "unknown chunk name: #{chunk}"
+    end
+
+    date = Date.ensure_date(date)
+    method = "#{chunk}_containing".to_sym
+    send(method, date)
+  end
+
   # Return a Period representing a chunk containing today.
   def self.this_day
     day_containing(Date.current)
