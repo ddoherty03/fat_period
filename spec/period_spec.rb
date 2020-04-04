@@ -55,6 +55,12 @@ describe Period do
   end
 
   describe 'class methods' do
+    it 'should be able to compare chunk symbols' do
+      expect(Period.chunk_cmp(:year, :half)).to eq(1)
+      expect(Period.chunk_cmp(:half, :year)).to eq(-1)
+      expect(Period.chunk_cmp(:year, :year)).to eq(0)
+    end
+
     it 'should be able to parse a period phrase' do
       pd = Period.parse_phrase('from this_year')
       expect(pd.first).to eq(Date.parse('2012-01-01'))

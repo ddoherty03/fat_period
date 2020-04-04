@@ -269,12 +269,22 @@ class Period
   CHUNKS = %i[day week biweek semimonth month bimonth quarter
               half year irregular].freeze
 
+  CHUNK_ORDER = {}
+  CHUNKS.each_with_index do |c, i|
+    CHUNK_ORDER[c] = i
+  end
+  CHUNK_ORDER.freeze
+
   # An Array of Ranges for the number of days that can be covered by each chunk.
   CHUNK_RANGE = {
     day: (1..1), week: (7..7), biweek: (14..14), semimonth: (15..16),
     month: (28..31), bimonth: (59..62), quarter: (90..92),
     half: (180..183), year: (365..366)
   }.freeze
+
+  def self.chunk_cmp(chunk1, chunk2)
+    CHUNK_ORDER[chunk1] <=> CHUNK_ORDER[chunk2]
+  end
 
   # Return a period representing a chunk containing a given Date.
   def self.day_containing(date)
