@@ -377,6 +377,33 @@ describe Period do
       expect(chunks[1].last.iso).to eq('2017-06-07')
     end
 
+    it 'should be able to chunk a single month into a single months' do
+      chunks =
+        Period.new('2017-05-01', '2017-05-31')
+          .chunks(size: :month, partial_first: false, partial_last: false)
+      expect(chunks.size).to eq(1)
+      expect(chunks[0].first.iso).to eq('2017-05-01')
+      expect(chunks[0].last.iso).to eq('2017-05-31')
+      chunks =
+        Period.new('2017-05-01', '2017-05-31')
+          .chunks(size: :month, partial_first: true, partial_last: false)
+      expect(chunks.size).to eq(1)
+      expect(chunks[0].first.iso).to eq('2017-05-01')
+      expect(chunks[0].last.iso).to eq('2017-05-31')
+      chunks =
+        Period.new('2017-05-01', '2017-05-31')
+          .chunks(size: :month, partial_first: false, partial_last: true)
+      expect(chunks.size).to eq(1)
+      expect(chunks[0].first.iso).to eq('2017-05-01')
+      expect(chunks[0].last.iso).to eq('2017-05-31')
+      chunks =
+        Period.new('2017-05-01', '2017-05-31')
+          .chunks(size: :month, partial_first: true, partial_last: true)
+      expect(chunks.size).to eq(1)
+      expect(chunks[0].first.iso).to eq('2017-05-01')
+      expect(chunks[0].last.iso).to eq('2017-05-31')
+    end
+
     it 'should be able to chunk into semimonths' do
       chunks = Period.new('2009-12-25', '2013-01-10').chunks(size: :semimonth)
       expect(chunks.size).to eq(72)
@@ -445,6 +472,16 @@ describe Period do
       pd = Period.new('2012-12-01', '2012-12-31')
       expect(pd.chunks(size: :bimonth, partial_first: true).first).to eq(pd)
       expect(pd.chunks(size: :bimonth, partial_last: true).first).to eq(pd)
+    end
+
+    it 'should return period itself for too small chunk if partials allowed' do
+      pd = Period.new('2012-02-01', '2012-02-06')
+      chunks = pd.chunks(size: :month, partial_first: true)
+      expect(chunks.size).to eq(1)
+      expect(chunks.first).to eq(pd)
+      chunks = pd.chunks(size: :month, partial_last: true)
+      expect(chunks.first).to eq(pd)
+      expect(chunks.first).to eq(pd)
     end
 
     it 'should not include a partial final chunk by default' do

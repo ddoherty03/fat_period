@@ -573,29 +573,48 @@ class Period
   # @return [Array<Period>] periods that subdivide self into chunks of size, `size`
   def chunks(size: :month, partial_first: false, partial_last: false,
              round_up_last: false)
-    size = size.to_sym
-    unless CHUNKS.include?(size)
-      raise ArgumentError, "unknown chunk size '#{size}'"
+    chunk_size = size.to_sym
+    unless CHUNKS.include?(chunk_size)
+      raise ArgumentError, "unknown chunk size '#{chunk_size}'"
     end
 
+    containing_period = Period.chunk_containing(first, chunk_size)
+    return [dup] if self == containing_period
+
+    # Period too small for even a single chunk and is wholly-contained by a
+    # single chunk.
     result = []
+    if proper_subset_of?(containing_period)
+      result =
+        if partial_first || partial_last
+          if round_up_last
+            [containing_period]
+          else
+            [dup]
+          end
+        else
+          []
+        end
+      return result
+    end
+
     chunk_start = first.dup
-    chunk_end = chunk_start.end_of_chunk(size)
-    if chunk_start.beginning_of_chunk?(size) || partial_first
+    chunk_end = chunk_start.end_of_chunk(chunk_size)
+    if chunk_start.beginning_of_chunk?(chunk_size) || partial_first
       # Keep the first chunk if it's whole or partials allowed
       result << Period.new(chunk_start, chunk_end)
       chunk_start = chunk_end + 1.day
-      chunk_end = chunk_start.end_of_chunk(size)
+      chunk_end = chunk_start.end_of_chunk(chunk_size)
     else
       # Discard the partial first or move to next whole chunk
       chunk_start = chunk_end + 1.day
-      chunk_end = chunk_start.end_of_chunk(size)
+      chunk_end = chunk_start.end_of_chunk(chunk_size)
     end
     # Add Whole chunks
     while chunk_end <= last
       result << Period.new(chunk_start, chunk_end)
       chunk_start = chunk_end + 1.day
-      chunk_end = chunk_start.end_of_chunk(size)
+      chunk_end = chunk_start.end_of_chunk(chunk_size)
     end
     # Possibly append the final chunk to result
     if chunk_start < last
