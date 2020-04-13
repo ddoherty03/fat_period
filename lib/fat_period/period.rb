@@ -29,8 +29,9 @@ class Period
   # @raise [ArgumentError] if first date is later than last date
   # @return [Period]
   def initialize(first, last)
-    @first = Date.ensure_date(first)
-    @last = Date.ensure_date(last)
+    @first = Date.ensure_date(first).freeze
+    @last = Date.ensure_date(last).freeze
+    freeze
 
     return unless @first > @last
 
