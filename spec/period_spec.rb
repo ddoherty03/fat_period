@@ -54,6 +54,60 @@ describe Period do
     end
   end
 
+  describe 'equality' do
+    it 'should be == if dates are the same' do
+      a = Period.new('2013-01-01', '2013-12-31')
+      b = Period.new('2013-01-01', '2013-12-31')
+      expect(a == b).to be_truthy
+    end
+
+    it 'should not be == if dates differ' do
+      a = Period.new('2013-01-01', '2013-12-30')
+      b = Period.new('2013-01-01', '2013-12-31')
+      expect(a == b).not_to be_truthy
+    end
+
+    it 'should be != if dates differ' do
+      a = Period.new('2013-01-01', '2013-12-30')
+      b = Period.new('2013-01-01', '2013-12-31')
+      expect(a != b).to be_truthy
+    end
+
+    it 'should return the same hash value if date the same' do
+      a = Period.new('2013-01-01', '2013-12-31')
+      b = Period.new('2013-01-01', '2013-12-31')
+      expect(a.hash).to eq(b.hash)
+    end
+
+    it 'should not return the same hash value if dates differ' do
+      a = Period.new('2013-01-02', '2013-12-31')
+      b = Period.new('2013-01-01', '2013-12-31')
+      expect(a.hash).not_to eq(b.hash)
+    end
+
+    it 'should eql? another with same dates' do
+      a = Period.new('2013-01-01', '2013-12-31')
+      b = Period.new('2013-01-01', '2013-12-31')
+      expect(a.eql?(b)).to eq(true)
+    end
+
+    it 'should not eql? another if dates differ' do
+      a = Period.new('2013-01-01', '2013-12-31')
+      b = Period.new('2013-01-01', '2013-12-30')
+      expect(a.eql?(b)).not_to eq(true)
+    end
+
+    it 'should be able to tell if it contains a date with ===' do
+      pp = Period.new('2013-01-01', '2013-12-31')
+      expect(pp === Date.parse('2013-01-01')).to be true
+      expect(pp === Date.parse('2013-07-04')).to be true
+      expect(pp === Date.parse('2013-12-31')).to be true
+      expect(pp === Date.parse('2012-07-04')).to be false
+    end
+
+
+  end
+
   describe 'class methods' do
     it 'should be able to compare chunk symbols' do
       expect(Period.chunk_cmp(:year, :half)).to eq(1)
@@ -239,14 +293,6 @@ describe Period do
       expect {
         pp.contains?(Time.now)
       }.not_to raise_error
-    end
-
-    it 'should be able to tell if it contains a date with ===' do
-      pp = Period.new('2013-01-01', '2013-12-31')
-      expect(pp === Date.parse('2013-01-01')).to be true
-      expect(pp === Date.parse('2013-07-04')).to be true
-      expect(pp === Date.parse('2013-12-31')).to be true
-      expect(pp === Date.parse('2012-07-04')).to be false
     end
 
     it 'should be able to convert itself to days' do

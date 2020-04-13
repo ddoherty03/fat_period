@@ -181,6 +181,20 @@ class Period
     !(self == other)
   end
 
+  # Return the hash value for this Period.  Make Period's with identical
+  # values test eql? so that they may be used as hash keys.
+  #
+  # @return [Integer]
+  def hash
+    (first.hash | last.hash)
+  end
+
+  def eql?(other)
+    return nil unless other.is_a?(Period)
+
+    hash == other.hash
+  end
+
   # Return whether this Period contains the given date.
   #
   # @param date [Date] date to test
