@@ -640,15 +640,15 @@ class Period
       else
         result
       end
-    elsif partial_last
+    end
+    if partial_last && !partial_first && result.empty?
       # Catch the case where the period is too small to make a whole chunk and
       # partial_first is false, so it did not get included as the initial
       # partial chunk, yet a partial_last is allowed, so include the whole
       # period as a partial chunk.
       result << Period.new(first, last)
-    else
-      result
     end
+    result
   end
 
   # @group Set operations

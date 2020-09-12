@@ -412,18 +412,51 @@ describe Period do
       expect(chunks.last.last.iso).to eq('2012-12-31')
     end
 
-    it 'should be able to chunk into months with only partials' do
-      chunks =
-        Period.new('2017-05-21', '2017-06-07')
-          .chunks(size: :month, partial_first: true, partial_last: true)
-      expect(chunks.size).to eq(2)
-      expect(chunks[0].first.iso).to eq('2017-05-21')
-      expect(chunks[0].last.iso).to eq('2017-05-31')
-      expect(chunks[1].first.iso).to eq('2017-06-01')
-      expect(chunks[1].last.iso).to eq('2017-06-07')
+    it 'should be able to chunk into months' do
+      chunks = Period.new('2009-12-15', '2013-01-10').chunks(size: :month)
+      expect(chunks.size).to eq(36)
+      expect(chunks[0].first.iso).to eq('2010-01-01')
+      expect(chunks[0].last.iso).to eq('2010-01-31')
+      expect(chunks[1].first.iso).to eq('2010-02-01')
+      expect(chunks[1].last.iso).to eq('2010-02-28')
+      expect(chunks[2].first.iso).to eq('2010-03-01')
+      expect(chunks[2].last.iso).to eq('2010-03-31')
+      expect(chunks.last.first.iso).to eq('2012-12-01')
+      expect(chunks.last.last.iso).to eq('2012-12-31')
     end
 
-    it 'should be able to chunk a single month into a single months' do
+    it 'should be able to chunk quarter into months with partial last' do
+      chunks =
+        Period.new('2020-01-01', '2020-03-31')
+          .chunks(size: :month, partial_last: true)
+      expect(chunks.size).to eq(3)
+      expect(chunks[0].first.iso).to eq('2020-01-01')
+      expect(chunks[0].last.iso).to eq('2020-01-31')
+      expect(chunks[1].first.iso).to eq('2020-02-01')
+      expect(chunks[1].last.iso).to eq('2020-02-29')
+      expect(chunks[2].first.iso).to eq('2020-03-01')
+      expect(chunks[2].last.iso).to eq('2020-03-31')
+    end
+
+    it 'should be able to partial month into months with partial last' do
+      chunks =
+        Period.new('2020-03-18', '2020-03-31')
+          .chunks(size: :month, partial_last: true)
+      expect(chunks.size).to eq(1)
+      expect(chunks[0].first.iso).to eq('2020-03-18')
+      expect(chunks[0].last.iso).to eq('2020-03-31')
+    end
+
+    it 'should be able to partial month into months with partial first' do
+      chunks =
+        Period.new('2020-03-18', '2020-03-31')
+          .chunks(size: :month, partial_first: true)
+      expect(chunks.size).to eq(1)
+      expect(chunks[0].first.iso).to eq('2020-03-18')
+      expect(chunks[0].last.iso).to eq('2020-03-31')
+    end
+
+    it 'should be able to chunk a partial month into a single months' do
       chunks =
         Period.new('2017-05-01', '2017-05-31')
           .chunks(size: :month, partial_first: false, partial_last: false)
