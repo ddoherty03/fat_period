@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 require 'fat_core/date'
 require 'fat_core/range'
 require 'fat_core/string'
@@ -498,7 +496,7 @@ class Period
   def self.days_to_chunk(days, tolerance_pct = 10)
     result = :irregular
     CHUNK_RANGE.each_pair do |chunk, rng|
-      if [:semimonth, :biweek, :week, :day].include?(chunk)
+      if %i[semimonth biweek week day].include?(chunk)
         # Be strict for shorter periods.
         if rng.cover?(days)
           result = chunk
@@ -618,13 +616,9 @@ class Period
     if chunk_start.beginning_of_chunk?(chunk_size) || partial_first
       # Keep the first chunk if it's whole or partials allowed
       result << Period.new(chunk_start, chunk_end)
-      chunk_start = chunk_end + 1.day
-      chunk_end = chunk_start.end_of_chunk(chunk_size)
-    else
-      # Discard the partial first or move to next whole chunk
-      chunk_start = chunk_end + 1.day
-      chunk_end = chunk_start.end_of_chunk(chunk_size)
     end
+    chunk_start = chunk_end + 1.day
+    chunk_end = chunk_start.end_of_chunk(chunk_size)
     # Add Whole chunks
     while chunk_end <= last
       result << Period.new(chunk_start, chunk_end)
