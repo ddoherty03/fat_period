@@ -87,14 +87,13 @@ class Period
   # @return [Period] translated from phrase
   def self.parse_phrase(phrase)
     phrase = phrase.clean
-    if phrase =~ /\Afrom (.*) to (.*)\z/
+    case phrase
+    when /\Afrom (.*) to (.*)\z/
       from_phrase = $1
       to_phrase = $2
-    elsif phrase =~ /\Afrom (.*)\z/
+    when /\Afrom (.*)\z/, /\Ato (.*)\z/
       from_phrase = $1
       to_phrase = nil
-    elsif phrase =~ /\Ato (.*)\z/
-      from_phrase = $1
     else
       from_phrase = phrase
       to_phrase = nil
@@ -340,9 +339,7 @@ class Period
     raise ArgumentError, 'chunk is nil' unless chunk
 
     chunk = chunk.to_sym
-    unless CHUNKS.include?(chunk)
-      raise ArgumentError, "unknown chunk name: #{chunk}"
-    end
+    raise ArgumentError, "unknown chunk name: #{chunk}" unless CHUNKS.include?(chunk)
 
     date = Date.ensure_date(date)
     method = "#{chunk}_containing".to_sym
@@ -587,9 +584,7 @@ class Period
   def chunks(size: :month, partial_first: false, partial_last: false,
              round_up_last: false)
     chunk_size = size.to_sym
-    unless CHUNKS.include?(chunk_size)
-      raise ArgumentError, "unknown chunk size '#{chunk_size}'"
-    end
+    raise ArgumentError, "unknown chunk size '#{chunk_size}'" unless CHUNKS.include?(chunk_size)
 
     containing_period = Period.chunk_containing(first, chunk_size)
     return [dup] if self == containing_period
