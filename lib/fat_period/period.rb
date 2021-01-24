@@ -488,7 +488,7 @@ class Period
   #   Period.days_to_chunk(88, 0)  #=> :irregular
   #
   # @param days [Integer] the number of days in the period under test
-  # @param tolerance_pct [Numberic] the percent deviation allowed, e.g. 10 => 10%
+  # @param tolerance_pct [Numeric] the percent deviation allowed, e.g. 10 => 10%
   # @return [Symbol] symbol for the period corresponding to days number of days
   def self.days_to_chunk(days, tolerance_pct = 10)
     result = :irregular
@@ -681,7 +681,7 @@ class Period
     to_range.superset_of?(other.to_range)
   end
 
-  # Does this period wholly contain but not coincident with `other`?
+  # Does this period wholly contain but is not coincident with `other`?
   #
   # @example
   #   Period.parse('2015').proper_superset_of?(Period.parse('2015-2Q'))    #=> true
