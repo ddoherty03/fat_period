@@ -37,9 +37,6 @@ class Period
 
   # These need to come after initialize is defined
 
-  # Period from commercial beginning of time to today
-  TO_DATE = Period.new(Date::BOT, Date.current)
-
   # Period from commercial beginning of time to commercial end of time.
   FOREVER = Period.new(Date::BOT, Date::EOT)
 
@@ -167,7 +164,7 @@ class Period
   # @param other [Period] @return [Integer] -1 if self < other; 0 if self ==
   # other; 1 if self > other
   def <=>(other)
-    return nil unless other.is_a?(Period)
+    return unless other.is_a?(Period)
 
     [first, last] <=> [other.first, other.last]
   end
@@ -186,7 +183,7 @@ class Period
   end
 
   def eql?(other)
-    return nil unless other.is_a?(Period)
+    return unless other.is_a?(Period)
 
     hash == other.hash
   end
@@ -201,7 +198,7 @@ class Period
 
     to_range.cover?(date)
   end
-  alias === contains?
+  alias_method :===, :contains?
 
   include Enumerable
 
@@ -230,8 +227,8 @@ class Period
   def size
     (last - first + 1).to_i
   end
-  alias length size
-  alias days size
+  alias_method :length, :size
+  alias_method :days, :size
 
   # Return the fractional number of months in the period.  By default, use the
   # average number of days in a month, but allow the user to override the
@@ -277,8 +274,18 @@ class Period
 
   # An Array of the valid Symbols for calendar chunks plus the Symbol :irregular
   # for other periods.
-  CHUNKS = %i[day week biweek semimonth month bimonth quarter
-              half year irregular].freeze
+  CHUNKS = %i[
+    day
+    week
+    biweek
+    semimonth
+    month
+    bimonth
+    quarter
+    half
+    year
+    irregular
+  ].freeze
 
   CHUNK_ORDER = {}
   CHUNKS.each_with_index do |c, i|
@@ -288,9 +295,15 @@ class Period
 
   # An Array of Ranges for the number of days that can be covered by each chunk.
   CHUNK_RANGE = {
-    day: (1..1), week: (7..7), biweek: (14..14), semimonth: (15..16),
-    month: (28..31), bimonth: (59..62), quarter: (90..92),
-    half: (180..183), year: (365..366)
+    day: (1..1),
+    week: (7..7),
+    biweek: (14..14),
+    semimonth: (15..16),
+    month: (28..31),
+    bimonth: (59..62),
+    quarter: (90..92),
+    half: (180..183),
+    year: (365..366)
   }.freeze
 
   def self.chunk_cmp(chunk1, chunk2)
@@ -580,8 +593,8 @@ class Period
   # @param round_up_last [Boolean] allow the last period in the returned array
   #   to extend beyond the end of self.
   # @return [Array<Period>] periods that subdivide self into chunks of size, `size`
-  def chunks(size: :month, partial_first: false, partial_last: false,
-             round_up_last: false)
+  def chunks(size: :month, partial_first: true, partial_last: true,
+    round_up_last: false)
     chunk_size = size.to_sym
     raise ArgumentError, "unknown chunk size '#{chunk_size}'" unless CHUNKS.include?(chunk_size)
 
@@ -713,8 +726,8 @@ class Period
       Period.new(result.first, result.last)
     end
   end
-  alias & intersection
-  alias narrow_to intersection
+  alias_method :&, :intersection
+  alias_method :narrow_to, :intersection
 
   # Return the Period that is the union of self with `other` or nil if
   # they neither overlap nor are contiguous
@@ -731,11 +744,11 @@ class Period
   # @return [Period, nil] self union `other`?
   def union(other)
     result = to_range.union(other.to_range)
-    return nil if result.nil?
+    return if result.nil?
 
     Period.new(result.first, result.last)
   end
-  alias + union
+  alias_method :+, :union
 
   # Return an array of periods that are this period excluding any overlap with
   # other. If there is no overlap, return an array with a period equal to self
@@ -753,7 +766,7 @@ class Period
     ranges = to_range.difference(other.to_range)
     ranges.each.map { |r| Period.new(r.first, r.last) }
   end
-  alias - difference
+  alias_method :-, :difference
 
   # Return whether this period overlaps the `other` period.  To overlap, the
   # periods must have at least one day in common.
