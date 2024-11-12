@@ -28,6 +28,12 @@ describe Period do
         .to be_instance_of Period
     end
 
+    it 'ensures an object is a Period' do
+      expect(Period.ensure('2011')).to be_an_instance_of(Period)
+      expect(Period.ensure('from 2011')).to be_an_instance_of(Period)
+      expect(Period.ensure(Period.parse('2011'))).to be_an_instance_of(Period)
+    end
+
     it 'raises a ArgumentError if last > first' do
       expect {
         Period.new('2013-01-01', '2012-12-31')

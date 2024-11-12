@@ -64,20 +64,47 @@ class Period
     Period.new(first, second) if first && second
   end
 
-  # Return a period as in `Period.parse` from a String phrase in which the from
-  # spec is introduced with 'from' and, optionally, the to spec is introduced
-  # with 'to'.  A phrase with only a to spec is treated the same as one with
-  # only a from spec.  If neither 'from' nor 'to' appear in phrase, treat the
-  # whole string as a from spec.
+  # Return a Period either from a given String or other type that can
+  # reasonably converted to a Period.
   #
   # @example
-  #   Period.parse_phrase('from 2014-11 to 2015-3Q') #=> Period('2014-11-01..2015-09-30')
-  #   Period.parse_phrase('from 2014-11')            #=> Period('2014-11-01..2014-11-30')
-  #   Period.parse_phrase('from 2015-3Q')            #=> Period('2015-09-01..2015-12-31')
-  #   Period.parse_phrase('to 2015-3Q')              #=> Period('2015-09-01..2015-12-31')
-  #   Period.parse_phrase('2015-3Q')                 #=> Period('2015-09-01..2015-12-31')
+  #   Period.ensure('2014-11').inspect    #=> Period('2014-11-01..2014-11-30')
+  #   pd = Period.parse('2011')
+  #   Period.ensure(pd).inspect           #=> Period('2011-01-01..2011-12-31')
   #
-  # @param phrase [String] with 'from <spec> to <spec>'
+  # @param prd [String|Period] or any candidate for conversion to Period
+  # @return Period correspondign to prd parameter
+  def self.ensure(prd)
+    prd.to_period if prd.respond_to?(:to_period)
+    case prd
+    when String
+      if prd.match(/from|to/i)
+        Period.parse_phrase(prd).first
+      else
+        Period.parse(prd)
+      end
+    when Period
+      prd
+    end
+  end
+
+  # Return an Array of Periods from a String phrase in which the from spec is
+  # introduced with 'from' and, optionally, the to spec is introduced with
+  # 'to' and optionally a 'per' clause is introduced by 'per'.  A phrase with
+  # only a to spec is treated the same as one with only a from spec.  If
+  # neither 'from' nor 'to' appear in phrase, treat the string before any
+  # per-clause as a from spec.
+  #
+  # @example
+  #   Period.parse_phrase('from 2014-11 to 2015-3Q') #=> [Period('2014-11-01..2015-09-30')]
+  #   Period.parse_phrase('from 2014-11')            #=> [Period('2014-11-01..2014-11-30')]
+  #   Period.parse_phrase('from 2015-3Q')            #=> [Period('2015-09-01..2015-12-31')]
+  #   Period.parse_phrase('to 2015-3Q')              #=> [Period('2015-09-01..2015-12-31')]
+  #   Period.parse_phrase('2015-3Q')                 #=> [Period('2015-09-01..2015-12-31')]
+  #   Period.parse_phrase('to 2015-3Q per week')     #=> [Period('2015-09-01..2015-09-04')...]
+  #   Period.parse_phrase('2015-3Q per month')       #=> [Period('2015-09-01..2015-09-30')...]
+  #
+  # @param phrase [String] with 'from <spec> [to <spec>] [per chunk]'
   # @return [Period] translated from phrase
   def self.parse_phrase(phrase, partial_first: true, partial_last: true, round_up_last: false)
     phrase = phrase.clean
