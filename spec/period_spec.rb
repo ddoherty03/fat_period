@@ -14,11 +14,6 @@ describe Period do
       expect(Period.new('2013-01-01', '2013-12-13')).to be_instance_of Period
     end
 
-    it 'initializes with Dates' do
-      expect(Period.new('2013-01-01', '2013-12-13'))
-        .to be_instance_of Period
-    end
-
     it 'initializes with DateTime' do
       dt1 = DateTime.new(2013, 1, 1, 4, 13, 8)
       dt2 = DateTime.new(2015, 1, 1, 4, 13, 8)
