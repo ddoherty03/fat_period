@@ -1,5 +1,3 @@
-require 'date'
-
 module FatPeriod
   # An extension of Date for methods useful with respect to FatPeriod::Periods.
   module Date

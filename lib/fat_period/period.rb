@@ -1,6 +1,5 @@
+require 'active_support'
 require 'fat_core/date'
-require 'fat_core/range'
-require 'fat_core/string'
 
 # The Period class represents a range of Dates and supports a variety of
 # operations on those ranges.
