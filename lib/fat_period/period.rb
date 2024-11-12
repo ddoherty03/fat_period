@@ -30,9 +30,7 @@ class Period
     @last = Date.ensure_date(last).freeze
     freeze
 
-    return unless @first > @last
-
-    raise ArgumentError, "Period's first date is later than its last date"
+    raise ArgumentError, "Period's first date is later than its last date" if @first > @last
   end
 
   # These need to come after initialize is defined
