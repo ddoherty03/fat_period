@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Date do
-  it 'should know how to expand to chunk periods' do
+  it 'expands to chunk periods' do
     expect(Date.parse('2013-07-04').expand_to_period(:year))
       .to eq Period.new('2013-01-01', '2013-12-31')
     expect(Date.parse('2013-07-04').expand_to_period(:half))
@@ -15,7 +15,7 @@ describe Date do
     expect(Date.parse('2013-07-04').expand_to_period(:semimonth))
       .to eq Period.new('2013-07-01', '2013-07-15')
     expect(Date.parse('2013-07-04').expand_to_period(:biweek))
-      .to eq Period.new('2013-07-01', '2013-07-14')
+      .to eq Period.new('2013-06-24', '2013-07-07')
     expect(Date.parse('2013-07-04').expand_to_period(:week))
       .to eq Period.new('2013-07-01', '2013-07-07')
     expect(Date.parse('2013-07-04').expand_to_period(:day))
