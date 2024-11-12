@@ -79,20 +79,31 @@ class Period
   #
   # @param phrase [String] with 'from <spec> to <spec>'
   # @return [Period] translated from phrase
-  def self.parse_phrase(phrase)
+  def self.parse_phrase(phrase, partial_first: true, partial_last: true, round_up_last: false)
     phrase = phrase.clean
     case phrase
-    when /\Afrom (.*) to (.*)\z/
+    when /\Afrom\s+([^\s]+)\s+to\s+([^\s]+)(\s+per\s+[^\s]+)?\z/i
       from_phrase = $1
       to_phrase = $2
-    when /\Afrom (.*)\z/, /\Ato (.*)\z/
+    when /\Afrom\s+([^\s]+)(\s+per\s+[^\s]+)?\z/, /\Ato\s+([^\s]+)(\s+per\s+[^\s]+)?\z/i
+      from_phrase = $1
+      to_phrase = nil
+    when /\A([^\s]+)(\s+per\s+[^\s]+)?\z/
       from_phrase = $1
       to_phrase = nil
     else
-      from_phrase = phrase
-      to_phrase = nil
+      raise ArgumentError, "unintelligible period phrase: '#{phrase}''"
     end
-    parse(from_phrase, to_phrase)
+    # Return an Array of periods divided by chunks if any.
+    whole_period = parse(from_phrase, to_phrase)
+    if phrase =~ /per\s+(?<chunk>[a-z_]+)/i
+      chunk_size = Regexp.last_match[:chunk].downcase.to_sym
+      raise ArgumentError, "invalid chunk size #{chunk_size}" unless CHUNKS.include?(chunk_size)
+
+      whole_period.chunks(size: chunk_size, partial_first:, partial_last:, round_up_last:)
+    else
+      [whole_period]
+    end
   end
 
   # @group Conversion
@@ -181,7 +192,7 @@ class Period
   end
 
   def eql?(other)
-    return unless other.is_a?(Period)
+    return false unless other.is_a?(Period)
 
     hash == other.hash
   end
@@ -282,7 +293,6 @@ class Period
     quarter
     half
     year
-    irregular
   ].freeze
 
   CHUNK_ORDER = {}

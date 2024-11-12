@@ -157,110 +157,107 @@ describe Period do
       expect(Period.parse('2014-3Q').last).to eq Date.parse('2014-09-30')
     end
   end
-    it 'parses a period phrase with this_year' do
-      pd = Period.parse_phrase('from this_year')
-      expect(pd.first).to eq(Date.parse('2012-01-01'))
-      expect(pd.last).to eq(Date.parse('2012-12-31'))
 
-      pd = Period.parse_phrase('this_year')
-      expect(pd.first).to eq(Date.parse('2012-01-01'))
-      expect(pd.last).to eq(Date.parse('2012-12-31'))
+  describe '.parse_phrase for an Array of Periods' do
+    it 'parses a period phrase with this_year' do
+      pds = Period.parse_phrase('from this_year')
+      expect(pds.first.first).to eq(Date.parse('2012-01-01'))
+      expect(pds.first.last).to eq(Date.parse('2012-12-31'))
+
+      pds = Period.parse_phrase('this_year')
+      expect(pds.first.first).to eq(Date.parse('2012-01-01'))
+      expect(pds.first.last).to eq(Date.parse('2012-12-31'))
     end
 
-    it 'parses last_year as well' do
-      pd = Period.parse_phrase('from last_year to this_year')
-      expect(pd.first).to eq(Date.parse('2011-01-01'))
-      expect(pd.last).to eq(Date.parse('2012-12-31'))
+    it 'parses.first.last_year as well' do
+      pds = Period.parse_phrase('from last_year to this_year')
+      expect(pds.first.first).to eq(Date.parse('2011-01-01'))
+      expect(pds.first.last).to eq(Date.parse('2012-12-31'))
 
-      pd = Period.parse_phrase('from last_year to this_year')
-      expect(pd.first).to eq(Date.parse('2011-01-01'))
-      expect(pd.last).to eq(Date.parse('2012-12-31'))
+      pds = Period.parse_phrase('from last_year to this_year')
+      expect(pds.first.first).to eq(Date.parse('2011-01-01'))
+      expect(pds.first.last).to eq(Date.parse('2012-12-31'))
     end
 
     it 'parses a period phrase with half-month' do
-      pd = Period.parse_phrase('from 2010-05-I')
-      expect(pd.first).to eq(Date.parse('2010-05-01'))
-      expect(pd.last).to eq(Date.parse('2010-05-15'))
+      pds = Period.parse_phrase('from 2010-05-I')
+      expect(pds.first.first).to eq(Date.parse('2010-05-01'))
+      expect(pds.first.last).to eq(Date.parse('2010-05-15'))
 
-      pd = Period.parse_phrase('from 2010-05-II')
-      expect(pd.first).to eq(Date.parse('2010-05-16'))
-      expect(pd.last).to eq(Date.parse('2010-05-31'))
+      pds = Period.parse_phrase('from 2010-05-II')
+      expect(pds.first.first).to eq(Date.parse('2010-05-16'))
+      expect(pds.first.last).to eq(Date.parse('2010-05-31'))
     end
 
     it 'parses month-only and year only' do
-      pd = Period.parse_phrase('from 2012-07 to 2012')
-      expect(pd.first).to eq(Date.parse('2012-07-01'))
-      expect(pd.last).to eq(Date.parse('2012-12-31'))
+      pds = Period.parse_phrase('from 2012-07 to 2012')
+      expect(pds.first.first).to eq(Date.parse('2012-07-01'))
+      expect(pds.first.last).to eq(Date.parse('2012-12-31'))
     end
 
     it 'parses lone year-half' do
-      pd = Period.parse_phrase('from 1H')
-      expect(pd.first).to eq(Date.parse('2012-01-01'))
-      expect(pd.last).to eq(Date.parse('2012-06-30'))
-      pd = Period.parse_phrase('to 2H')
-      expect(pd.first).to eq(Date.parse('2012-07-01'))
-      expect(pd.last).to eq(Date.parse('2012-12-31'))
+      pds = Period.parse_phrase('from 1H')
+      expect(pds.first.first).to eq(Date.parse('2012-01-01'))
+      expect(pds.first.last).to eq(Date.parse('2012-06-30'))
+      pds = Period.parse_phrase('to 2H')
+      expect(pds.first.first).to eq(Date.parse('2012-07-01'))
+      expect(pds.first.last).to eq(Date.parse('2012-12-31'))
     end
 
     it 'parses year-half' do
-      pd = Period.parse_phrase('from 2012-1H')
-      expect(pd.first).to eq(Date.parse('2012-01-01'))
-      expect(pd.last).to eq(Date.parse('2012-06-30'))
+      pds = Period.parse_phrase('from 2012-1H')
+      expect(pds.first.first).to eq(Date.parse('2012-01-01'))
+      expect(pds.first.last).to eq(Date.parse('2012-06-30'))
 
-      pd = Period.parse_phrase('from 2012-2H')
-      expect(pd.first).to eq(Date.parse('2012-07-01'))
-      expect(pd.last).to eq(Date.parse('2012-12-31'))
+      pds = Period.parse_phrase('from 2012-2H')
+      expect(pds.first.first).to eq(Date.parse('2012-07-01'))
+      expect(pds.first.last).to eq(Date.parse('2012-12-31'))
     end
 
     it 'parses lone quarter' do
-      pd = Period.parse_phrase('from 2Q')
-      expect(pd.first).to eq(Date.parse('2012-04-01'))
-      expect(pd.last).to eq(Date.parse('2012-06-30'))
+      pds = Period.parse_phrase('from 2Q')
+      expect(pds.first.first).to eq(Date.parse('2012-04-01'))
+      expect(pds.first.last).to eq(Date.parse('2012-06-30'))
 
-      pd = Period.parse_phrase('to 3Q')
-      expect(pd.first).to eq(Date.parse('2012-07-01'))
-      expect(pd.last).to eq(Date.parse('2012-09-30'))
+      pds = Period.parse_phrase('to 3Q')
+      expect(pds.first.first).to eq(Date.parse('2012-07-01'))
+      expect(pds.first.last).to eq(Date.parse('2012-09-30'))
     end
 
     it 'parses year-quarter' do
-      pd = Period.parse_phrase('to 2012-2Q')
-      expect(pd.first).to eq(Date.parse('2012-04-01'))
-      expect(pd.last).to eq(Date.parse('2012-06-30'))
+      pds = Period.parse_phrase('to 2012-2Q')
+      expect(pds.first.first).to eq(Date.parse('2012-04-01'))
+      expect(pds.first.last).to eq(Date.parse('2012-06-30'))
 
-      pd = Period.parse_phrase('from 2012-1Q')
-      expect(pd.first).to eq(Date.parse('2012-01-01'))
-      expect(pd.last).to eq(Date.parse('2012-03-31'))
+      pds = Period.parse_phrase('from 2012-1Q')
+      expect(pds.first.first).to eq(Date.parse('2012-01-01'))
+      expect(pds.first.last).to eq(Date.parse('2012-03-31'))
     end
 
     it 'parses lone year' do
-      pd = Period.parse_phrase('to 2012')
-      expect(pd.first).to eq(Date.parse('2012-01-01'))
-      expect(pd.last).to eq(Date.parse('2012-12-31'))
+      pds = Period.parse_phrase('to 2012')
+      expect(pds.first.first).to eq(Date.parse('2012-01-01'))
+      expect(pds.first.last).to eq(Date.parse('2012-12-31'))
 
-      pd = Period.parse_phrase('from 2012')
-      expect(pd.first).to eq(Date.parse('2012-01-01'))
-      expect(pd.last).to eq(Date.parse('2012-12-31'))
+      pds = Period.parse_phrase('from 2012')
+      expect(pds.first.first).to eq(Date.parse('2012-01-01'))
+      expect(pds.first.last).to eq(Date.parse('2012-12-31'))
 
-      pd = Period.parse_phrase('2012')
-      expect(pd.first).to eq(Date.parse('2012-01-01'))
-      expect(pd.last).to eq(Date.parse('2012-12-31'))
+      pds = Period.parse_phrase('2012')
+      expect(pds.first.first).to eq(Date.parse('2012-01-01'))
+      expect(pds.first.last).to eq(Date.parse('2012-12-31'))
     end
 
     it 'parses year-weeknum' do
-      pd = Period.parse_phrase('from 2012-W5 to 2013-14W')
-      expect(pd.first).to eq(Date.parse('2012-01-30'))
-      expect(pd.last).to eq(Date.parse('2013-04-07'))
+      pds = Period.parse_phrase('from 2012-W5 to 2013-14W')
+      expect(pds.first.first).to eq(Date.parse('2012-01-30'))
+      expect(pds.first.last).to eq(Date.parse('2013-04-07'))
     end
 
-    it 'returns nil when parsing never' do
-      expect(Period.parse('never')).to be_nil
+    it 'raises error on non-sense phrase' do
+      expect { Period.parse_phrase('for score and seven') }.to raise_error(/unintelligible/)
     end
-
-    it 'parses a pair of date specs' do
-      expect(Period.parse('2014-3Q').first).to eq Date.parse('2014-07-01')
-      expect(Period.parse('2014-3Q').last).to eq Date.parse('2014-09-30')
-      expect(Period.parse('2014-3Q').last).to eq Date.parse('2014-09-30')
-    end
+  end
 
   describe '.parse_phrase with chunks for an Array of Periods' do
     it 'parses a period phrase with this_year' do
@@ -272,13 +269,40 @@ describe Period do
       expect(pds.size).to eq(12)
     end
 
-    it 'parses.first.last_year as well' do
+    it 'parses from last_year as well' do
       pds = Period.parse_phrase('from last_year to this_year per month')
       expect(pds.first.first).to eq(Date.parse('2011-01-01'))
       expect(pds.first.last).to eq(Date.parse('2011-01-31'))
       expect(pds.last.first).to eq(Date.parse('2012-12-01'))
       expect(pds.last.last).to eq(Date.parse('2012-12-31'))
       expect(pds.size).to eq(24)
+    end
+
+    it 'parses from-per phrase' do
+      pds = Period.parse_phrase('from last_year per month')
+      expect(pds.first.first).to eq(Date.parse('2011-01-01'))
+      expect(pds.first.last).to eq(Date.parse('2011-01-31'))
+      expect(pds.last.first).to eq(Date.parse('2011-12-01'))
+      expect(pds.last.last).to eq(Date.parse('2011-12-31'))
+      expect(pds.size).to eq(12)
+    end
+
+    it 'parses to-per phrase' do
+      pds = Period.parse_phrase('to last_year per month')
+      expect(pds.first.first).to eq(Date.parse('2011-01-01'))
+      expect(pds.first.last).to eq(Date.parse('2011-01-31'))
+      expect(pds.last.first).to eq(Date.parse('2011-12-01'))
+      expect(pds.last.last).to eq(Date.parse('2011-12-31'))
+      expect(pds.size).to eq(12)
+    end
+
+    it 'parses bare from with per phrase' do
+      pds = Period.parse_phrase('last_year per month')
+      expect(pds.first.first).to eq(Date.parse('2011-01-01'))
+      expect(pds.first.last).to eq(Date.parse('2011-01-31'))
+      expect(pds.last.first).to eq(Date.parse('2011-12-01'))
+      expect(pds.last.last).to eq(Date.parse('2011-12-31'))
+      expect(pds.size).to eq(12)
     end
 
     it 'parses a period phrase with half-month' do
