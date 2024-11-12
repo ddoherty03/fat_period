@@ -84,31 +84,79 @@ describe Period do
     it 'eql?s another with same dates' do
       a = Period.new('2013-01-01', '2013-12-31')
       b = Period.new('2013-01-01', '2013-12-31')
-      expect(a.eql?(b)).to eq(true)
+      expect(a.eql?(b)).to be true
     end
 
     it 'does not eql? another if dates differ' do
       a = Period.new('2013-01-01', '2013-12-31')
       b = Period.new('2013-01-01', '2013-12-30')
-      expect(a.eql?(b)).not_to eq(true)
+      expect(a.eql?(b)).not_to be true
     end
 
     it 'tells if it contains a date with ===' do
+      # rubocop:disable Style/CaseEquality
       pp = Period.new('2013-01-01', '2013-12-31')
       expect(pp === Date.parse('2013-01-01')).to be true
       expect(pp === Date.parse('2013-07-04')).to be true
       expect(pp === Date.parse('2013-12-31')).to be true
       expect(pp === Date.parse('2012-07-04')).to be false
+      # rubocop:enable Style/CaseEquality
     end
   end
 
-  describe 'class methods' do
+  describe 'chunk-level methods' do
     it 'compares chunk symbols' do
       expect(Period.chunk_cmp(:year, :half)).to eq(1)
       expect(Period.chunk_cmp(:half, :year)).to eq(-1)
       expect(Period.chunk_cmp(:year, :year)).to eq(0)
     end
 
+    it 'knows what the valid chunk syms are' do
+      expect(Period::CHUNKS.size).to eq(9)
+    end
+
+    it 'gets the chunk sym for given days' do
+      (365..366).each { |d| expect(Period.days_to_chunk(d)).to eq(:year) }
+      (180..183).each { |d| expect(Period.days_to_chunk(d)).to eq(:half) }
+      (90..92).each { |d| expect(Period.days_to_chunk(d)).to eq(:quarter) }
+      (59..62).each { |d| expect(Period.days_to_chunk(d)).to eq(:bimonth) }
+      (28..31).each { |d| expect(Period.days_to_chunk(d)).to eq(:month) }
+      (15..16).each { |d| expect(Period.days_to_chunk(d)).to eq(:semimonth) }
+      expect(Period.days_to_chunk(14)).to eq(:biweek)
+      expect(Period.days_to_chunk(7)).to eq(:week)
+      expect(Period.days_to_chunk(1)).to eq(:day)
+    end
+
+    it 'gets chunk name based on its size' do
+      expect(Period.new('2011-01-01', '2011-12-31').chunk_name).to eq('Year')
+      expect(Period.new('2011-01-01', '2011-06-30').chunk_name).to eq('Half')
+      expect(Period.new('2011-01-01', '2011-03-31').chunk_name).to eq('Quarter')
+      expect(Period.new('2011-01-01', '2011-02-28').chunk_name)
+        .to eq('Bimonth')
+      expect(Period.new('2011-01-01', '2011-01-31').chunk_name).to eq('Month')
+      expect(Period.new('2011-01-01', '2011-01-15').chunk_name)
+        .to eq('Semimonth')
+      expect(Period.new('2011-01-09', '2011-01-22').chunk_name).to eq('Biweek')
+      expect(Period.new('2011-01-01', '2011-01-07').chunk_name).to eq('Week')
+      expect(Period.new('2011-01-01', '2011-01-01').chunk_name).to eq('Day')
+      expect(Period.new('2011-01-01', '2011-01-21').chunk_name).to eq('Period')
+      # Only size matters, not whether the period begins and ends on
+      # calendar unit boundaries.
+      expect(Period.new('2011-02-11', '2011-03-10').chunk_name).to eq('Month')
+    end
+  end
+
+  describe '.parse a for a single Period' do
+    it 'returns nil when parsing never' do
+      expect(Period.parse('never')).to be_nil
+    end
+
+    it 'parses a pair of date specs' do
+      expect(Period.parse('2014-3Q').first).to eq Date.parse('2014-07-01')
+      expect(Period.parse('2014-3Q').last).to eq Date.parse('2014-09-30')
+      expect(Period.parse('2014-3Q').last).to eq Date.parse('2014-09-30')
+    end
+  end
     it 'parses a period phrase with this_year' do
       pd = Period.parse_phrase('from this_year')
       expect(pd.first).to eq(Date.parse('2012-01-01'))
@@ -214,38 +262,30 @@ describe Period do
       expect(Period.parse('2014-3Q').last).to eq Date.parse('2014-09-30')
     end
 
-    it 'knows what the valid chunk syms are' do
-      expect(Period::CHUNKS.size).to eq(10)
+  describe '.parse_phrase with chunks for an Array of Periods' do
+    it 'parses a period phrase with this_year' do
+      pds = Period.parse_phrase('from this_year per month')
+      expect(pds.first.first).to eq(Date.parse('2012-01-01'))
+      expect(pds.first.last).to eq(Date.parse('2012-01-31'))
+      expect(pds.last.first).to eq(Date.parse('2012-12-01'))
+      expect(pds.last.last).to eq(Date.parse('2012-12-31'))
+      expect(pds.size).to eq(12)
     end
 
-    it 'gets the chunk sym for given days' do
-      (365..366).each { |d| expect(Period.days_to_chunk(d)).to eq(:year) }
-      (180..183).each { |d| expect(Period.days_to_chunk(d)).to eq(:half) }
-      (90..92).each { |d| expect(Period.days_to_chunk(d)).to eq(:quarter) }
-      (59..62).each { |d| expect(Period.days_to_chunk(d)).to eq(:bimonth) }
-      (28..31).each { |d| expect(Period.days_to_chunk(d)).to eq(:month) }
-      (15..16).each { |d| expect(Period.days_to_chunk(d)).to eq(:semimonth) }
-      expect(Period.days_to_chunk(14)).to eq(:biweek)
-      expect(Period.days_to_chunk(7)).to eq(:week)
-      expect(Period.days_to_chunk(1)).to eq(:day)
+    it 'parses.first.last_year as well' do
+      pds = Period.parse_phrase('from last_year to this_year per month')
+      expect(pds.first.first).to eq(Date.parse('2011-01-01'))
+      expect(pds.first.last).to eq(Date.parse('2011-01-31'))
+      expect(pds.last.first).to eq(Date.parse('2012-12-01'))
+      expect(pds.last.last).to eq(Date.parse('2012-12-31'))
+      expect(pds.size).to eq(24)
     end
 
-    it 'gets chunk name based on its size' do
-      expect(Period.new('2011-01-01', '2011-12-31').chunk_name).to eq('Year')
-      expect(Period.new('2011-01-01', '2011-06-30').chunk_name).to eq('Half')
-      expect(Period.new('2011-01-01', '2011-03-31').chunk_name).to eq('Quarter')
-      expect(Period.new('2011-01-01', '2011-02-28').chunk_name)
-        .to eq('Bimonth')
-      expect(Period.new('2011-01-01', '2011-01-31').chunk_name).to eq('Month')
-      expect(Period.new('2011-01-01', '2011-01-15').chunk_name)
-        .to eq('Semimonth')
-      expect(Period.new('2011-01-09', '2011-01-22').chunk_name).to eq('Biweek')
-      expect(Period.new('2011-01-01', '2011-01-07').chunk_name).to eq('Week')
-      expect(Period.new('2011-01-01', '2011-01-01').chunk_name).to eq('Day')
-      expect(Period.new('2011-01-01', '2011-01-21').chunk_name).to eq('Period')
-      # Only size matters, not whether the period begins and ends on
-      # calendar unit boundaries.
-      expect(Period.new('2011-02-11', '2011-03-10').chunk_name).to eq('Month')
+    it 'parses a period phrase with half-month' do
+      pds = Period.parse_phrase('from 2010-05-I per day')
+      expect(pds.first.first).to eq(Date.parse('2010-05-01'))
+      expect(pds.last.last).to eq(Date.parse('2010-05-15'))
+      expect(pds.size).to eq(15)
     end
   end
 
@@ -346,8 +386,7 @@ describe Period do
 
     it 'implements the each method' do
       pp = Period.new('2013-12-01', '2013-12-31')
-      pp.map(&:iso)
-        .each { |s| expect(s).to match(/\d{4}-\d\d-\d\d/) }
+      expect(pp.map(&:iso)).to all match(/\d{4}-\d\d-\d\d/)
     end
 
     it 'makes a concise period string' do
