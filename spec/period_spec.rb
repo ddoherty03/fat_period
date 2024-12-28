@@ -604,6 +604,9 @@ describe Period do
       expect(chunks[3].last.iso).to eq('2010-01-23')
       expect(chunks.last.first.iso).to eq('2012-12-30')
       expect(chunks.last.last.iso).to eq('2012-12-31')
+      chunks = Period.parse('2010').chunks(size: :week)
+      expect(chunks[0].first.iso).to eq('2010-01-01')
+      expect(chunks.last.last.iso).to eq('2010-12-31')
     end
 
     it 'chunks into days' do

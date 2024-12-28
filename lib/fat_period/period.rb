@@ -78,7 +78,7 @@ class Period
     prd.to_period if prd.respond_to?(:to_period)
     case prd
     when String
-      if prd.match(/from|to/i)
+      if prd.match?(/from|to/i)
         Period.parse_phrase(prd).first
       else
         Period.parse(prd)
