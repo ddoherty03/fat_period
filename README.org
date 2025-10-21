@@ -1,3 +1,6 @@
+#+TITLE: FatPeriod User Guide
+#+PROPERTY: header-args:ruby :colnames no :session fat_period :hlines yes :exports both
+#+PROPERTY: header-args:sh :exports code
 #+OPTIONS: :toc
 #+LATEX_HEADER: \usepackage[margin=0.75in]{geometry}
 
@@ -9,14 +12,30 @@ The following is for org.
 
 [[https://travis-ci.org/ddoherty03/fat_table.svg?branch=master]]
 
+* Version
+#+begin_src ruby :wrap EXAMPLE
+  require 'fat_period'
+  include FatPeriod
+  "Current version is: #{FatPeriod::VERSION}"
+#+end_src
+
+#+RESULTS:
+#+begin_EXAMPLE
+Current version is: 2.1.0
+#+end_EXAMPLE
+
 * Introduction
 
-~FatPeriod~ provides a Ruby ~Period~ class for dealing with time periods, that
-is ranges whose endpoints are ~Date~ s.  Set operations, for example, are
-provided for Period, as well as methods for parsing strings into Periods and
-methods for breaking a larger periods into an array of smaller periods of
-various 'chunk' sizes that correspond to calendar-related periods such as
-days, weeks, months, and so forth.'
+~FatPeriod~ provides a Ruby ~Period~ class for dealing with time periods of
+days, that is ranges whose endpoints are of class ~Date~.  It's target is
+financial applications, but it serves well anytime periods of time are useful.
+It builds on the [[https://github.com/ddoherty03/fat_core][fat_core]] gem, which provides enhancements to the ~Date~ class
+among other things.
+
+Set operations, for example, are provided for Period, as well as methods for
+parsing strings into Periods and methods for breaking a larger periods into an
+array of smaller periods of various 'chunk' sizes that correspond to
+calendar-related periods such as days, weeks, months, and so forth.'
 
 * Installation
 
@@ -41,9 +60,18 @@ Or install it yourself as:
 #+END_SRC
 
 * Usage
+** Period Constants
+*** Constant Period::FOREVER
+
+The ~Period~ class depends on the extensions to ~Date~ made by the ~fat_core~
+gem, which you can read about [[https://github.com/ddoherty03/fat_core][here]].  It defines a constant, ~Period::FOREVER~,
+which is defined as extending from ~Date::BOT~ to ~Date::EOT~, which are
+defined in ~fat_core~ as 1900-01-01 and 3000-12-31, respectively and define
+the beginning of time and end of time for practical commercial purposes.  The
+constant is not frozen, so you can re-define it to your liking.
 
 ** Construction of Periods
-
+*** Period.new
 A Period is constructed with two arguments for the begin and end date.  The
 begin date must be on or before the end date.  Each argument can be (1) a
 Date, (2) a string parseable as a Date by the Date.parse method, or (3) an
@@ -53,15 +81,62 @@ object that responds to ~#to_s~ and can be parsed as a Date by Date.parse:
   p1 = Period.new(Date.today, Date.today + 30)
   p2 = Period.new('Nov 22, 1963', Date.today)
   p3 = Period.new('1961-01-21', '1963-11-22')
-  puts "Camelot lasted #{p3.length} days"
+  [[p1.to_s], [p2.to_s], [p3.to_s]]
 #+end_SRC
 
-** Period Constants
+#+RESULTS:
+| 2025-03-20 to 2025-04-19 |
+| 1963-11-22 to 2025-03-20 |
+| 1961-01-21 to 1963-11-22 |
 
-The ~Period~ class depends on the extensions to ~Date~ made by the ~fat_core~
-gem, which you can read about [[https://github.com/ddoherty03/fat_core][here]].  It defines two constants, ~Date::BOT~ and
-~Date::EOT~, which define beginning of time and end of time for practical
-commercial purposes.
+#+begin_src ruby
+  ["Camelot lasted #{p3.length} days"]
+#+end_src
+
+#+RESULTS:
+| Camelot lasted 1036 days |
+
+*** Period.parse
+A more convenient way to construct a period is provided by ~Period.parse~.  It
+takes two strings as its arguments, a mandatory "from-spec" and an optional
+"to-spec":
+
+A "spec" is a string designating some period of time.  There are many ways of
+specifying a period, which are detailed below.
+
+**** With Only a From-Spec
+
+#+begin_src ruby :session fat_period
+ Period.parse('2020')
+#+end_src
+
+#+RESULTS:
+: Period(2020-01-01..2020-12-31)
+
+As you can see, if only a from-spec is given, it defines both the beginning
+and end of the overall period.
+
+**** With Both a From-Spec and To-Spec
+But, if a to-spec is also given, the from-spec
+defines the beginning of the period and the to-spec defines the end of the
+period:
+
+#+begin_src ruby :session fat_period
+ Period.parse('2020', '2023')
+#+end_src
+
+#+RESULTS:
+: Period(2020-01-01..2023-12-31)
+
+In particular, the beginning of the period is the first day of the from-spec
+and the end of the period is the last day of the from-spec.
+
+** Date Specs in From- and To-Specs
+We refer to strings meant to designate a time period as a "date spec", and
+~FatPeriod~ understands a whole host of date specs as described here.
+
+*** 'YYYY'
+
 
 * Development
 
