@@ -1,7 +1,7 @@
 #+TITLE: FatPeriod User Guide
 #+PROPERTY: header-args:ruby :colnames no :hlines yes :exports both
 #+PROPERTY: header-args:sh :exports code
-#+OPTIONS: :toc
+#+OPTIONS: :toc:3
 #+LATEX_HEADER: \usepackage[margin=0.75in]{geometry}
 
 #+BEGIN_COMMENT
