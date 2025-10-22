@@ -1,5 +1,4 @@
-require 'active_support'
-require 'fat_core/date'
+require 'fat_date'
 
 # The Period class represents a range of Dates and supports a variety of
 # operations on those ranges.
@@ -41,7 +40,7 @@ class Period
   # @group Parsing
   #
   # Return a period based on two date specs passed as strings (see
-  # `FatCore::Date.parse_spec`), a 'from' and a 'to' spec. The returned period
+  # `FatCore::Date.spec`), a 'from' and a 'to' spec. The returned period
   # begins on the first day of the period given as the `from` spec and ends on
   # the last day given as the `to` spec. If the to spec is not given or is nil,
   # the from spec is used for both the from- and to-spec.
@@ -52,15 +51,15 @@ class Period
   #   # Assuming this executes in December, 2014
   #   Period.parse('last_month', 'this_month').inspect #=> Period('2014-11-01..2014-12-31')
   #
-  # @param from [String] spec ala FatCore::Date.parse_spec
-  # @param to [String] spec ala FatCore::Date.parse_spec
+  # @param from [String] spec ala FatCore::Date.spec
+  # @param to [String] spec ala FatCore::Date.spec
   # @return [Period] from beginning of `from` to end of `to`
   def self.parse(from, to = nil)
     raise ArgumentError, 'Period.parse missing argument' unless from
 
     to ||= from
-    first = Date.parse_spec(from, :from)
-    second = Date.parse_spec(to, :to)
+    first = Date.spec(from, :from)
+    second = Date.spec(to, :to)
     Period.new(first, second) if first && second
   end
 
