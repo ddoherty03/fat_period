@@ -186,11 +186,11 @@ describe Period do
     end
 
     it 'parses a period phrase with half-month' do
-      pds = Period.parse_phrase('from 2010-05-I')
+      pds = Period.parse_phrase('from 2010-05-A')
       expect(pds.first.first).to eq(Date.parse('2010-05-01'))
       expect(pds.first.last).to eq(Date.parse('2010-05-15'))
 
-      pds = Period.parse_phrase('from 2010-05-II')
+      pds = Period.parse_phrase('from 2010-05-B')
       expect(pds.first.first).to eq(Date.parse('2010-05-16'))
       expect(pds.first.last).to eq(Date.parse('2010-05-31'))
     end
@@ -312,7 +312,7 @@ describe Period do
     end
 
     it 'parses a period phrase with half-month' do
-      pds = Period.parse_phrase('from 2010-05-I per day')
+      pds = Period.parse_phrase('from 2010-05-A per day')
       expect(pds.first.first).to eq(Date.parse('2010-05-01'))
       expect(pds.last.last).to eq(Date.parse('2010-05-15'))
       expect(pds.size).to eq(15)
