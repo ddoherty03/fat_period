@@ -38,6 +38,43 @@ breaking a larger periods into an array of smaller periods of various 'chunk'
 sizes that correspond to calendar-related periods such as days, weeks, months,
 and so forth.
 
+* Table of Contents                                            :toc:noexport:
+- [[#version][Version]]
+- [[#introduction][Introduction]]
+- [[#installation][Installation]]
+  - [[#installing-the-gem][Installing the gem]]
+- [[#usage][Usage]]
+  - [[#constant-periodforever][Constant Period::FOREVER]]
+  - [[#construction-of-periods][Construction of Periods]]
+    - [[#periodnew][Period.new]]
+    - [[#periodparse][Period.parse]]
+      - [[#with-only-a-from-spec][With Only a From-Spec]]
+      - [[#with-both-a-from-spec-and-to-spec][With Both a From-Spec and To-Spec]]
+      - [[#using-skip-modifiers][Using Skip Modifiers]]
+    - [[#periodparse_phrase][Period.parse_phrase]]
+    - [[#periodensure][Period.ensure]]
+  - [[#conversion][Conversion]]
+    - [[#to-range][To Range]]
+    - [[#to-string][To String]]
+    - [[#tex-form][TeX Form]]
+  - [[#comparison][Comparison]]
+  - [[#enumeration][Enumeration]]
+  - [[#size][Size]]
+  - [[#chunking][Chunking]]
+  - [[#set-operations][Set Operations]]
+    - [[#subset-determination][Subset Determination]]
+    - [[#superset-determination][Superset Determination]]
+    - [[#intersection][Intersection]]
+    - [[#difference][Difference]]
+    - [[#union][Union]]
+  - [[#coverage][Coverage]]
+    - [[#contains][Contains?]]
+    - [[#overlapping][Overlapping]]
+    - [[#spanning][Spanning]]
+    - [[#gaps][Gaps]]
+- [[#development][Development]]
+- [[#contributing][Contributing]]
+
 * Installation
 
 ** Installing the gem
