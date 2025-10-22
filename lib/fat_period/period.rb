@@ -223,18 +223,6 @@ class Period
     hash == other.hash
   end
 
-  # Return whether this Period contains the given date.
-  #
-  # @param date [Date] date to test
-  # @return [Boolean] is the given date within this Period?
-  def contains?(date)
-    date = date.to_date if date.respond_to?(:to_date)
-    raise ArgumentError, 'argument must be a Date' unless date.is_a?(Date)
-
-    to_range.cover?(date)
-  end
-  alias_method :===, :contains?
-
   include Enumerable
 
   # @group Enumeration
@@ -817,6 +805,18 @@ class Period
   def overlaps?(other)
     to_range.overlaps?(other.to_range)
   end
+
+  # Return whether this Period contains the given date.
+  #
+  # @param date [Date] date to test
+  # @return [Boolean] is the given date within this Period?
+  def contains?(date)
+    date = date.to_date if date.respond_to?(:to_date)
+    raise ArgumentError, 'argument must be a Date' unless date.is_a?(Date)
+
+    to_range.cover?(date)
+  end
+  alias_method :===, :contains?
 
   # Return whether any of the given periods overlap any other.
   #
