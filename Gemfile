@@ -1,16 +1,17 @@
+# frozen_string_literal: true
+
 source 'https://rubygems.org'
 
 # Specify your gem's dependencies in fat_period.gemspec
 gemspec
 
-gem 'bundler'
-gem 'debug'
-gem 'pry'
-gem 'pry-doc'
-gem 'rake'
-gem 'rspec'
-gem 'rubocop'
-gem 'rubocop-rspec'
-gem 'rubocop-performance'
-gem 'rubocop-rake'
-gem 'rubocop-shopify'
+group :development do
+  gem 'bundler'
+  gem 'debug'
+  gem 'pry'
+  gem 'pry-doc'
+  gem 'rake'
+  gem 'rspec'
+  gem 'rubocop', require: false
+  gem 'rubocop-ddoherty', git: 'https://github.com/ddoherty03/rubocop-ddoherty.git', branch: 'master', require: false
+end

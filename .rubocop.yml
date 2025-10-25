@@ -1,0 +1,3 @@
+# Inherit the shared config from the rubocop-ddoherty gem (git-hosted on GitHub)
+inherit_gem:
+  rubocop-ddoherty: 'config/default.yml'
