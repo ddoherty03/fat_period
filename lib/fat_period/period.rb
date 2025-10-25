@@ -76,7 +76,8 @@ class Period
   # @param prd [String|Period] or any candidate for conversion to Period
   # @return Period correspondign to prd parameter
   def self.ensure(prd)
-    prd.to_period if prd.respond_to?(:to_period)
+    return prd.to_period if prd.respond_to?(:to_period)
+
     case prd
     when String
       if prd.match?(/from|to/i)
