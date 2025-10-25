@@ -1,21 +1,45 @@
 #+TITLE: FatPeriod User Guide
-#+PROPERTY: header-args:ruby :colnames no :hlines yes :exports both
+#+OPTIONS: toc:5
+#+PROPERTY: header-args:ruby :colnames no :session fat_period :hlines yes :exports both :wrap example :ruby "bundle exec irb --prompt=simple"
 #+PROPERTY: header-args:sh :exports code
-#+OPTIONS: :toc:3
 #+LATEX_HEADER: \usepackage[margin=0.75in]{geometry}
 
-#+BEGIN_COMMENT
-This is for markdown output:
+[[https://github.com/ddoherty03/fat_period/actions/workflows/ruby.yml][https://github.com/ddoherty03/fat_period/actions/workflows/ruby.yml/badge.svg?branch=master]]
 
-The following is for org.
-#+END_COMMENT
+* Setup for Code Blocks                            :noexport:
+Run this block before all others to ensure that we are reading the libraries
+from the source directory.
 
-[[https://travis-ci.org/ddoherty03/fat_table.svg?branch=master]]
+#+begin_src ruby :results output :export no
+  Dir.chdir("/home/ded/src/fat_period")
+  puts "Current directory: #{Dir.pwd}"
+  puts "Ruby LOADPATH:"
+  $LOAD_PATH.unshift(File.expand_path("lib", Dir.pwd)) unless $:[0].match?(%r{src/fat_period/lib})
+  $:[0..10].each { |d| puts d }
+  puts "..."
+  require 'fat_period'
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Current directory: /home/ded/src/fat_period
+Ruby LOADPATH:
+/home/ded/src/fat_period/lib
+/home/ded/.rbenv/versions/3.4.1/lib/ruby/gems/3.4.0/gems/bundler-2.6.7/lib
+/home/ded/.rbenv/rbenv.d/exec/gem-rehash
+/home/ded/.rbenv/versions/3.4.1/lib/ruby/gems/3.4.0/bundler/gems/rubocop-ddoherty-6b28e9614f18/lib
+/home/ded/.rbenv/versions/3.4.1/lib/ruby/gems/3.4.0/gems/rubocop-shopify-2.17.1/lib
+/home/ded/.rbenv/versions/3.4.1/lib/ruby/gems/3.4.0/gems/rubocop-rspec-3.7.0/lib
+/home/ded/.rbenv/versions/3.4.1/lib/ruby/gems/3.4.0/gems/rubocop-rake-0.7.1/lib
+/home/ded/.rbenv/versions/3.4.1/lib/ruby/gems/3.4.0/gems/rubocop-performance-1.26.1/lib
+/home/ded/.rbenv/versions/3.4.1/lib/ruby/gems/3.4.0/gems/rubocop-1.81.6/lib
+/home/ded/.rbenv/versions/3.4.1/lib/ruby/gems/3.4.0/gems/unicode-display_width-3.2.0/lib
+/home/ded/.rbenv/versions/3.4.1/lib/ruby/gems/3.4.0/gems/unicode-emoji-4.1.0/lib
+...
+#+end_example
 
 * Version
 #+begin_src ruby :wrap EXAMPLE
-  require 'fat_period'
-  include FatPeriod
   "Current version is: #{FatPeriod::VERSION}"
 #+end_src
 
@@ -147,8 +171,6 @@ If only a from-spec is given, it defines both the beginning and end of the
 overall period:
 
 #+begin_src ruby
-  require 'fat_period'
-
   tab = []
   tab << ['From Spec', 'Result']
   tab << nil
@@ -159,25 +181,24 @@ overall period:
   tab
 #+end_src
 
-#+RESULTS:
+#+begin_example
 | From Spec   | Result                         |
 |-------------+--------------------------------|
 | 2020        | Period(2020-01-01..2020-12-31) |
 | 2020-2Q     | Period(2020-04-01..2020-06-30) |
-| 2020-W45    | Period(2020-11-02..2020-11-08) |
+| 2020-W15    | Period(2020-04-06..2020-04-12) |
 | 2020-09     | Period(2020-09-01..2020-09-30) |
 | 2020-09-A   | Period(2020-09-01..2020-09-15) |
 | 2020-09-iii | Period(2020-09-14..2020-09-20) |
+#+end_example
 
 **** With Both a From-Spec and To-Spec
 But, if a to-spec is also given, the from-spec defines the beginning of the
 period and the to-spec defines the end of the period. In particular, the
 beginning of the period is the first day of the from-spec and the end of the
-period is the last day of the from-spec:
+period is the last day of the to-spec:
 
 #+begin_src ruby
-  require 'fat_period'
-
   tab = []
   tab << ['From Spec', 'To Spec', 'Result']
   tab << nil
@@ -188,7 +209,7 @@ period is the last day of the from-spec:
   tab
 #+end_src
 
-#+RESULTS:
+#+begin_example
 | From Spec | To Spec     | Result                         |
 |-----------+-------------+--------------------------------|
 | 2020      | 2020-2Q     | Period(2020-01-01..2020-06-30) |
@@ -196,6 +217,7 @@ period is the last day of the from-spec:
 | 2020-W15  | 2020-09     | Period(2020-04-06..2020-09-30) |
 | 2020-09   | 2020-09-A   | Period(2020-09-01..2020-09-15) |
 | 2020-09-A | 2020-09-iii | Period(2020-09-01..2020-09-20) |
+#+end_example
 
 **** Using Skip Modifiers
 One new feature of FatDate is the ability to add a "skip modifier" to the end
@@ -206,8 +228,6 @@ the last Wednesday /before/ the end of 2025.  Using '>' or '>=' specified
 skipping forward instead.
 
 #+begin_src ruby
-  require 'fat_period'
-
   tab = []
   tab << ['From Spec', 'To Spec', 'Result', 'Description']
   tab << nil
@@ -222,13 +242,14 @@ skipping forward instead.
   tab
 #+end_src
 
-#+RESULTS:
+#+begin_example
 | From Spec | To Spec       | Result                         | Description                                                |
 |-----------+---------------+--------------------------------+------------------------------------------------------------|
 | 2025-2Q   | 2025<=Wed     | Period(2025-04-01..2025-12-31) | From 2q to last Wednesday of 2025                          |
 | 2025-2Q   | 2025<Wed      | Period(2025-04-01..2025-12-31) | From 2q to last Wednesday /before/ the end of 2025         |
 | 2012-11   | 2012-11<=Thur | Period(2012-11-01..2012-11-29) | November 2012 through last Thursday                        |
 | 2012-11   | 2012-11-4Thur | Period(2012-11-01..2012-11-22) | And through Thanksgiving (not always the /last/ Thursday!) |
+#+end_example
 
 *** Period.parse_phrase
 For example:
@@ -244,8 +265,6 @@ it tries to interpret the beginning of the phrase as a valid spec and uses it
 as a 'from' clause.
 
 #+begin_src ruby
-  require 'fat_period'
-
   tab = []
   tab << ['k', 'Sub Period']
   tab << nil
@@ -256,7 +275,7 @@ as a 'from' clause.
   tab
 #+end_src
 
-#+RESULTS:
+#+begin_example
 | k | Sub Period                     |
 |---+--------------------------------|
 | 0 | Period(2025-01-01..2025-01-31) |
@@ -268,6 +287,7 @@ as a 'from' clause.
 | 6 | Period(2025-07-01..2025-07-31) |
 | 7 | Period(2025-08-01..2025-08-31) |
 | 8 | Period(2025-09-01..2025-09-30) |
+#+end_example
 
 The period named in the 'per' clause is called a 'chunk' and there are several
 valid chunk names in ~FatPeriod~:
@@ -289,8 +309,6 @@ Here is the same period broken into weeks.  Notice that the first and last
 of the overall period.
 
 #+begin_src ruby
-  require 'fat_period'
-
   tab = []
   tab << ['k', 'Sub Period']
   tab << nil
@@ -301,7 +319,7 @@ of the overall period.
   tab
 #+end_src
 
-#+RESULTS:
+#+begin_example
 |  k | Sub Period                     |
 |----+--------------------------------|
 |  0 | Period(2025-01-01..2025-01-05) |
@@ -344,6 +362,7 @@ of the overall period.
 | 37 | Period(2025-09-15..2025-09-21) |
 | 38 | Period(2025-09-22..2025-09-28) |
 | 39 | Period(2025-09-29..2025-09-30) |
+#+end_example
 
 
 *** Period.ensure
@@ -356,6 +375,42 @@ otherwise it throws an ~ArgumentError~ exception:
   interepret it as a ~Period~;
 - if it is already a ~Period~, it just returns the argument;
 - otherwise, it throws an ~ArgumentError~ exception.
+
+
+ #+begin_src ruby
+   class ContainingMonth
+     def initialize(dat)
+       @dat = Date.ensure(dat)
+     end
+
+     def to_period
+       Period.month_containing(@dat)
+     end
+   end
+
+   cm = ContainingMonth.new('2025-09-22')
+   Period.ensure(cm)
+  #+end_src
+
+#+begin_example
+Period(2025-09-01..2025-09-30)
+  #+end_example
+
+#+begin_src ruby
+  Period.ensure('from 2016 to 2018-3Q')
+#+end_src
+
+#+begin_example
+Period(2016-01-01..2018-09-30)
+#+end_example
+
+#+begin_src ruby
+  Period.ensure(Period.new('2016-01-02', '2017-09-29'))
+#+end_src
+
+#+begin_example
+Period(2016-01-02..2017-09-29)
+#+end_example
 
 ** Conversion
 *** To Range
