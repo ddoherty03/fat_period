@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'fat_date'
 
 # The Period class represents a range of Dates and supports a variety of
@@ -109,13 +111,13 @@ class Period
     phrase = phrase.clean
     case phrase
     when /\Afrom\s+([^\s]+)\s+to\s+([^\s]+)(\s+per\s+[^\s]+)?\z/i
-      from_phrase = $1
-      to_phrase = $2
+      from_phrase = ::Regexp.last_match(1)
+      to_phrase = ::Regexp.last_match(2)
     when /\Afrom\s+([^\s]+)(\s+per\s+[^\s]+)?\z/, /\Ato\s+([^\s]+)(\s+per\s+[^\s]+)?\z/i
-      from_phrase = $1
+      from_phrase = ::Regexp.last_match(1)
       to_phrase = nil
     when /\A([^\s]+)(\s+per\s+[^\s]+)?\z/
-      from_phrase = $1
+      from_phrase = ::Regexp.last_match(1)
       to_phrase = nil
     else
       raise ArgumentError, "unintelligible period phrase: '#{phrase}''"

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Period do
@@ -347,9 +349,9 @@ describe Period do
       pp1 = Period.new('2013-01-01', '2013-12-31')
       pp2 = Period.new('2013-01-01', '2013-12-31')
       pp3 = Period.new('2013-01-01', '2013-12-30')
-      expect((pp1 == pp2)).to be true
-      expect((pp1 == pp3)).not_to be true
-      expect((pp1 != pp3)).to be true
+      expect(pp1 == pp2).to be true
+      expect(pp1 == pp3).not_to be true
+      expect(pp1 != pp3).to be true
     end
 
     it 'converts into a Range' do
