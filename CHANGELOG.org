@@ -1,0 +1,29 @@
+* Version 3.0.0
+- Use the newly-spun-out fat_date library in place of fat_core/date, which no
+  longer exists starting with fat_core version 6.0.0.
+- The fat_date library uses ~Date.spec~ instead of ~Date.parse_spec~, which is
+  just cleaner to type.
+- The new ~fat_date~ libraries come with some notable enhancements to date
+  specs, including:
+  1. Skip modifiers, which allow the spec to "skip" from its usual target date
+     to the nearest day-of-week, either before or after the target date, and
+     either including or not including the target date as a candidate.
+  2. Changes the semimonth specifier from uppercase roman to A or B, so
+     2025-10-A (rather than 2025-I) is now the first semimonth for October,
+     2025, and 2025-10-B (rather than 2025-II) is now the second semimonth.
+     This allows week-of-month specs to be case insensitive, so 2025-10-i,
+     2025-10-ii, 2025-10-iii, 2025-10-iv, and 2025-10-v, can represent the
+     first through fifth week of October, 2025, as well as 2025-10-I,
+     2025-10-II, 2025-10-III, 2025-10-IV, and 2025-10-V.
+  3. In general, all the spec involving letters should now be case insensitive.
+- Some other code cleanup with no impact on the API.
+
+* Version 2.1.0
+- When the first date is later than the second in ~Period.new~, raise
+  ~ArgumentError~ exception instead of returning nil.
+- Allow ~Period.parse_phrase~ to parse a 'per' clause and return an Array of
+  Periods that are sub-periods of the period given by the from- and
+  to-clauses.
+- Add ~Period.ensure(arg)~ to try to return a ~Period~ from a string that can
+  be parsed as a ~Period~, an object that has a ~to_period~ method, or return
+  the ~arg~ if its already a ~Period~.
