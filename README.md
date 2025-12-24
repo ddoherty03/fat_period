@@ -1,40 +1,40 @@
-- [Version](#org6e3eea4)
-- [Introduction](#orgda50e5d)
-- [Installation](#org52c5a52)
-  - [Installing the gem](#orgbdb3c5b)
-- [Usage](#org68d3eb4)
-  - [Constant Period::FOREVER](#orgbbfdac9)
-  - [Construction of Periods](#org395dc2a)
-    - [Period.new](#org39e22c3)
-    - [Period.parse](#orge274e41)
-    - [Period.parse\_phrase](#orgdd5d397)
-    - [Period.ensure](#orgf1c5f7b)
-  - [Conversion](#org39bf064)
-    - [To Range](#org648004f)
-    - [To String](#org23d848a)
-    - [TeX Form](#orgb6494de)
-  - [Comparison](#org1d65777)
-  - [Enumeration](#orgee8282d)
-  - [Size](#orgb2c8964)
-  - [Chunking](#orgaf69a05)
-  - [Set Operations](#orge88433b)
-    - [Subset Determination](#org7d1e633)
-    - [Superset Determination](#org71a5fde)
-    - [Intersection](#org4712bc1)
-    - [Difference](#org98e2d12)
-    - [Union](#org5b3f969)
-  - [Coverage](#org7cd8008)
-    - [Contains?](#org86ac33c)
-    - [Overlapping](#orgd46b493)
-    - [Spanning](#org5cb04f9)
-    - [Gaps](#org7fad67d)
-- [Development](#org9d1a830)
-- [Contributing](#org002487e)
+- [Version](#orgea783d2)
+- [Introduction](#orga4fc662)
+- [Installation](#orgaec4e19)
+  - [Installing the gem](#org857d59c)
+- [Usage](#org27555b2)
+  - [Constant Period::FOREVER](#org318e209)
+  - [Construction of Periods](#org6f39571)
+    - [Period.new](#org5a563bb)
+    - [Period.parse](#org6d058b3)
+    - [Period.parse\_phrase](#org144eb0e)
+    - [Period.ensure](#org55a23cc)
+  - [Conversion](#org7ccd090)
+    - [To Range](#orgbe1e782)
+    - [To String](#org51c2cc1)
+    - [TeX Form](#orga18e030)
+  - [Comparison](#orgd257559)
+  - [Enumeration](#orgdf931ed)
+  - [Size](#orgfa5ea85)
+  - [Chunking](#org5f17613)
+  - [Set Operations](#org4f51f21)
+    - [Subset Determination](#org73ded8a)
+    - [Superset Determination](#orgd68741b)
+    - [Intersection](#orgdc7bbc8)
+    - [Difference](#org4688765)
+    - [Union](#orgbd561dd)
+  - [Coverage](#org5e8b768)
+    - [Contains?](#org5b258c7)
+    - [Overlapping](#orgf13eac3)
+    - [Spanning](#orgddbaa24)
+    - [Gaps](#org6782533)
+- [Development](#org65e3ab5)
+- [Contributing](#org2c19dc9)
 
 [![CI](https://github.com/ddoherty03/fat_period/actions/workflows/ruby.yml/badge.svg?branch=master)](https://github.com/ddoherty03/fat_period/actions/workflows/ruby.yml)
 
 
-<a id="org6e3eea4"></a>
+<a id="orgea783d2"></a>
 
 # Version
 
@@ -46,12 +46,8 @@
 Current version is: 3.0.1
 ```
 
-```
-Current version is: 3.0.0
-```
 
-
-<a id="orgda50e5d"></a>
+<a id="orga4fc662"></a>
 
 # Introduction
 
@@ -60,12 +56,12 @@ Current version is: 3.0.0
 In addition, set operations are provided for Period, as well as methods for breaking a larger periods into an array of smaller periods of various 'chunk' sizes that correspond to calendar-related periods such as days, weeks, months, and so forth.
 
 
-<a id="org52c5a52"></a>
+<a id="orgaec4e19"></a>
 
 # Installation
 
 
-<a id="orgbdb3c5b"></a>
+<a id="org857d59c"></a>
 
 ## Installing the gem
 
@@ -92,24 +88,24 @@ $ gem install fat_period
 ```
 
 
-<a id="org68d3eb4"></a>
+<a id="org27555b2"></a>
 
 # Usage
 
 
-<a id="orgbbfdac9"></a>
+<a id="org318e209"></a>
 
 ## Constant Period::FOREVER
 
 The `Period` class depends on the extensions to `Date` made by the `fat_core` gem, which you can read about [here](https://github.com/ddoherty03/fat_core). It defines a constant, `Period::FOREVER`, which is defined as extending from `Date::BOT` to `Date::EOT`, which are defined in `fat_date` as 1900-01-01 and 3000-12-31, respectively and define the beginning of time and end of time for practical commercial purposes. The constant is not frozen, so you can re-define it to your liking.
 
 
-<a id="org395dc2a"></a>
+<a id="org6f39571"></a>
 
 ## Construction of Periods
 
 
-<a id="org39e22c3"></a>
+<a id="org5a563bb"></a>
 
 ### Period.new
 
@@ -137,7 +133,7 @@ p3 = Period.new('1961-01-21', '1963-11-22')
 ```
 
 
-<a id="orge274e41"></a>
+<a id="org6d058b3"></a>
 
 ### Period.parse
 
@@ -255,7 +251,7 @@ A "spec" is a string designating some period of time. There are many ways of spe
     ```
 
 
-<a id="orgdd5d397"></a>
+<a id="org144eb0e"></a>
 
 ### Period.parse\_phrase
 
@@ -420,7 +416,7 @@ tab
 ```
 
 
-<a id="orgf1c5f7b"></a>
+<a id="org55a23cc"></a>
 
 ### Period.ensure
 
@@ -479,102 +475,102 @@ Period(2016-01-02..2017-09-29)
 ```
 
 
-<a id="org39bf064"></a>
+<a id="org7ccd090"></a>
 
 ## Conversion
 
 
-<a id="org648004f"></a>
+<a id="orgbe1e782"></a>
 
 ### To Range
 
 
-<a id="org23d848a"></a>
+<a id="org51c2cc1"></a>
 
 ### To String
 
 
-<a id="orgb6494de"></a>
+<a id="orga18e030"></a>
 
 ### TeX Form
 
 
-<a id="org1d65777"></a>
+<a id="orgd257559"></a>
 
 ## Comparison
 
 
-<a id="orgee8282d"></a>
+<a id="orgdf931ed"></a>
 
 ## Enumeration
 
 
-<a id="orgb2c8964"></a>
+<a id="orgfa5ea85"></a>
 
 ## Size
 
 
-<a id="orgaf69a05"></a>
+<a id="org5f17613"></a>
 
 ## Chunking
 
 
-<a id="orge88433b"></a>
+<a id="org4f51f21"></a>
 
 ## Set Operations
 
 
-<a id="org7d1e633"></a>
+<a id="org73ded8a"></a>
 
 ### Subset Determination
 
 
-<a id="org71a5fde"></a>
+<a id="orgd68741b"></a>
 
 ### Superset Determination
 
 
-<a id="org4712bc1"></a>
+<a id="orgdc7bbc8"></a>
 
 ### Intersection
 
 
-<a id="org98e2d12"></a>
+<a id="org4688765"></a>
 
 ### Difference
 
 
-<a id="org5b3f969"></a>
+<a id="orgbd561dd"></a>
 
 ### Union
 
 
-<a id="org7cd8008"></a>
+<a id="org5e8b768"></a>
 
 ## Coverage
 
 
-<a id="org86ac33c"></a>
+<a id="org5b258c7"></a>
 
 ### Contains?
 
 
-<a id="orgd46b493"></a>
+<a id="orgf13eac3"></a>
 
 ### Overlapping
 
 
-<a id="org5cb04f9"></a>
+<a id="orgddbaa24"></a>
 
 ### Spanning
 
 
-<a id="org7fad67d"></a>
+<a id="org6782533"></a>
 
 ### Gaps
 
 
-<a id="org9d1a830"></a>
+<a id="org65e3ab5"></a>
 
 # Development
 
@@ -583,7 +579,7 @@ After checking out the repo, run \`bin/setup\` to install dependencies. Then, ru
 To install this gem onto your local machine, run \`bundle exec rake install\`. To release a new version, update the version number in \`version.rb\`, and then run \`bundle exec rake release\`, which will create a git tag for the version, push git commits and tags, and push the \`.gem\` file to [rubygems.org](<https://rubygems.org>).
 
 
-<a id="org002487e"></a>
+<a id="org2c19dc9"></a>
 
 # Contributing
 
