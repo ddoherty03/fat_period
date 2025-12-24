@@ -22,10 +22,6 @@
 Current version is: 3.0.1
 #+end_EXAMPLE
 
-#+begin_EXAMPLE
-Current version is: 3.0.0
-#+end_EXAMPLE
-
 * Introduction
 ~FatPeriod~ provides a Ruby ~Period~ class for dealing with time periods of
 days, that is ranges whose endpoints are of class ~Date~.  It's target is
