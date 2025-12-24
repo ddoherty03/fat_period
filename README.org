@@ -1,54 +1,32 @@
 #+TITLE: FatPeriod User Guide
 #+OPTIONS: toc:5
-#+PROPERTY: header-args:ruby :colnames no :session fat_period :hlines yes :exports both :wrap example :ruby "bundle exec irb --prompt=simple"
-#+PROPERTY: header-args:sh :exports code
 #+LATEX_HEADER: \usepackage[margin=0.75in]{geometry}
+#+PROPERTY: header-args:ruby :results value :colnames no :hlines yes :exports both :dir "./"
+#+PROPERTY: header-args:ruby+ :wrap example :session fat_period_session :eval yes
+#+PROPERTY: header-args:ruby+ :prologue "$:.unshift('./lib') unless $:.first == './lib'; require 'fat_period'"
+#+PROPERTY: header-args:sh :exports code :eval no
+#+PROPERTY: header-args:bash :exports code :eval no
 
-[[https://github.com/ddoherty03/fat_period/actions/workflows/ruby.yml][https://github.com/ddoherty03/fat_period/actions/workflows/ruby.yml/badge.svg?branch=master]]
+#+BEGIN_EXPORT markdown
+[![CI](https://github.com/ddoherty03/fat_period/actions/workflows/ruby.yml/badge.svg?branch=master)](https://github.com/ddoherty03/fat_period/actions/workflows/ruby.yml)
+#+END_EXPORT
 
-* Setup for Code Blocks                            :noexport:
-Run this block before all others to ensure that we are reading the libraries
-from the source directory.
-
-#+begin_src ruby :results output :export no
-  Dir.chdir("/home/ded/src/fat_period")
-  puts "Current directory: #{Dir.pwd}"
-  puts "Ruby LOADPATH:"
-  $LOAD_PATH.unshift(File.expand_path("lib", Dir.pwd)) unless $:[0].match?(%r{src/fat_period/lib})
-  $:[0..10].each { |d| puts d }
-  puts "..."
-  require 'fat_period'
-#+end_src
-
-#+RESULTS:
-#+begin_example
-Current directory: /home/ded/src/fat_period
-Ruby LOADPATH:
-/home/ded/src/fat_period/lib
-/home/ded/.rbenv/versions/3.4.1/lib/ruby/gems/3.4.0/gems/bundler-2.6.7/lib
-/home/ded/.rbenv/rbenv.d/exec/gem-rehash
-/home/ded/.rbenv/versions/3.4.1/lib/ruby/gems/3.4.0/bundler/gems/rubocop-ddoherty-6b28e9614f18/lib
-/home/ded/.rbenv/versions/3.4.1/lib/ruby/gems/3.4.0/gems/rubocop-shopify-2.17.1/lib
-/home/ded/.rbenv/versions/3.4.1/lib/ruby/gems/3.4.0/gems/rubocop-rspec-3.7.0/lib
-/home/ded/.rbenv/versions/3.4.1/lib/ruby/gems/3.4.0/gems/rubocop-rake-0.7.1/lib
-/home/ded/.rbenv/versions/3.4.1/lib/ruby/gems/3.4.0/gems/rubocop-performance-1.26.1/lib
-/home/ded/.rbenv/versions/3.4.1/lib/ruby/gems/3.4.0/gems/rubocop-1.81.6/lib
-/home/ded/.rbenv/versions/3.4.1/lib/ruby/gems/3.4.0/gems/unicode-display_width-3.2.0/lib
-/home/ded/.rbenv/versions/3.4.1/lib/ruby/gems/3.4.0/gems/unicode-emoji-4.1.0/lib
-...
-#+end_example
 
 * Version
 #+begin_src ruby :wrap EXAMPLE
   "Current version is: #{FatPeriod::VERSION}"
 #+end_src
 
+#+RESULTS:
+#+begin_EXAMPLE
+Current version is: 3.0.1
+#+end_EXAMPLE
+
 #+begin_EXAMPLE
 Current version is: 3.0.0
 #+end_EXAMPLE
 
 * Introduction
-
 ~FatPeriod~ provides a Ruby ~Period~ class for dealing with time periods of
 days, that is ranges whose endpoints are of class ~Date~.  It's target is
 financial applications, but it serves well for any application where periods
@@ -62,43 +40,6 @@ breaking a larger periods into an array of smaller periods of various 'chunk'
 sizes that correspond to calendar-related periods such as days, weeks, months,
 and so forth.
 
-* Table of Contents                                            :toc:noexport:
-- [[#version][Version]]
-- [[#introduction][Introduction]]
-- [[#installation][Installation]]
-  - [[#installing-the-gem][Installing the gem]]
-- [[#usage][Usage]]
-  - [[#constant-periodforever][Constant Period::FOREVER]]
-  - [[#construction-of-periods][Construction of Periods]]
-    - [[#periodnew][Period.new]]
-    - [[#periodparse][Period.parse]]
-      - [[#with-only-a-from-spec][With Only a From-Spec]]
-      - [[#with-both-a-from-spec-and-to-spec][With Both a From-Spec and To-Spec]]
-      - [[#using-skip-modifiers][Using Skip Modifiers]]
-    - [[#periodparse_phrase][Period.parse_phrase]]
-    - [[#periodensure][Period.ensure]]
-  - [[#conversion][Conversion]]
-    - [[#to-range][To Range]]
-    - [[#to-string][To String]]
-    - [[#tex-form][TeX Form]]
-  - [[#comparison][Comparison]]
-  - [[#enumeration][Enumeration]]
-  - [[#size][Size]]
-  - [[#chunking][Chunking]]
-  - [[#set-operations][Set Operations]]
-    - [[#subset-determination][Subset Determination]]
-    - [[#superset-determination][Superset Determination]]
-    - [[#intersection][Intersection]]
-    - [[#difference][Difference]]
-    - [[#union][Union]]
-  - [[#coverage][Coverage]]
-    - [[#contains][Contains?]]
-    - [[#overlapping][Overlapping]]
-    - [[#spanning][Spanning]]
-    - [[#gaps][Gaps]]
-- [[#development][Development]]
-- [[#contributing][Contributing]]
-
 * Installation
 
 ** Installing the gem
@@ -109,17 +50,26 @@ Add this line to your application's Gemfile:
   gem 'fat_period'
 #+END_SRC
 
+#+RESULTS:
+#+begin_example
+true
+#+end_example
+
 And then execute:
 
 #+BEGIN_SRC sh
   $ bundle
 #+END_SRC
 
+#+RESULTS:
+
 Or install it yourself as:
 
 #+BEGIN_SRC sh
   $ gem install fat_period
 #+END_SRC
+
+#+RESULTS:
 
 * Usage
 ** Constant Period::FOREVER
@@ -146,16 +96,20 @@ object that responds to ~#to_s~ and can be parsed as a Date by Date.parse:
 #+end_SRC
 
 #+RESULTS:
-| 2025-03-20 to 2025-04-19 |
-| 1963-11-22 to 2025-03-20 |
+#+begin_example
+| 2025-12-24 to 2026-01-23 |
+| 1963-11-22 to 2025-12-24 |
 | 1961-01-21 to 1963-11-22 |
+#+end_example
 
 #+begin_src ruby
   ["Camelot lasted #{p3.length} days"]
 #+end_src
 
 #+RESULTS:
+#+begin_example
 | Camelot lasted 1036 days |
+#+end_example
 
 *** Period.parse
 A more convenient way to construct a period is provided by ~Period.parse~.  It
@@ -180,6 +134,18 @@ overall period:
   end
   tab
 #+end_src
+
+#+RESULTS:
+#+begin_example
+| From Spec   | Result                         |
+|-------------+--------------------------------|
+| 2020        | Period(2020-01-01..2020-12-31) |
+| 2020-2Q     | Period(2020-04-01..2020-06-30) |
+| 2020-W15    | Period(2020-04-06..2020-04-12) |
+| 2020-09     | Period(2020-09-01..2020-09-30) |
+| 2020-09-A   | Period(2020-09-01..2020-09-15) |
+| 2020-09-iii | Period(2020-09-14..2020-09-20) |
+#+end_example
 
 #+begin_example
 | From Spec   | Result                         |
@@ -208,6 +174,17 @@ period is the last day of the to-spec:
   end
   tab
 #+end_src
+
+#+RESULTS:
+#+begin_example
+| From Spec | To Spec     | Result                         |
+|-----------+-------------+--------------------------------|
+| 2020      | 2020-2Q     | Period(2020-01-01..2020-06-30) |
+| 2020-2Q   | 2020-W15    | Period(2020-04-01..2020-04-12) |
+| 2020-W15  | 2020-09     | Period(2020-04-06..2020-09-30) |
+| 2020-09   | 2020-09-A   | Period(2020-09-01..2020-09-15) |
+| 2020-09-A | 2020-09-iii | Period(2020-09-01..2020-09-20) |
+#+end_example
 
 #+begin_example
 | From Spec | To Spec     | Result                         |
@@ -242,6 +219,16 @@ skipping forward instead.
   tab
 #+end_src
 
+#+RESULTS:
+#+begin_example
+| From Spec | To Spec       | Result                         | Description                                                |
+|-----------+---------------+--------------------------------+------------------------------------------------------------|
+| 2025-2Q   | 2025<=Wed     | Period(2025-04-01..2025-12-31) | From 2q to last Wednesday of 2025                          |
+| 2025-2Q   | 2025<Wed      | Period(2025-04-01..2025-12-31) | From 2q to last Wednesday /before/ the end of 2025         |
+| 2012-11   | 2012-11<=Thur | Period(2012-11-01..2012-11-29) | November 2012 through last Thursday                        |
+| 2012-11   | 2012-11-4Thur | Period(2012-11-01..2012-11-22) | And through Thanksgiving (not always the /last/ Thursday!) |
+#+end_example
+
 #+begin_example
 | From Spec | To Spec       | Result                         | Description                                                |
 |-----------+---------------+--------------------------------+------------------------------------------------------------|
@@ -274,6 +261,21 @@ as a 'from' clause.
   end
   tab
 #+end_src
+
+#+RESULTS:
+#+begin_example
+| k | Sub Period                     |
+|---+--------------------------------|
+| 0 | Period(2025-01-01..2025-01-31) |
+| 1 | Period(2025-02-01..2025-02-28) |
+| 2 | Period(2025-03-01..2025-03-31) |
+| 3 | Period(2025-04-01..2025-04-30) |
+| 4 | Period(2025-05-01..2025-05-31) |
+| 5 | Period(2025-06-01..2025-06-30) |
+| 6 | Period(2025-07-01..2025-07-31) |
+| 7 | Period(2025-08-01..2025-08-31) |
+| 8 | Period(2025-09-01..2025-09-30) |
+#+end_example
 
 #+begin_example
 | k | Sub Period                     |
@@ -318,6 +320,52 @@ of the overall period.
   end
   tab
 #+end_src
+
+#+RESULTS:
+#+begin_example
+|  k | Sub Period                     |
+|----+--------------------------------|
+|  0 | Period(2025-01-01..2025-01-05) |
+|  1 | Period(2025-01-06..2025-01-12) |
+|  2 | Period(2025-01-13..2025-01-19) |
+|  3 | Period(2025-01-20..2025-01-26) |
+|  4 | Period(2025-01-27..2025-02-02) |
+|  5 | Period(2025-02-03..2025-02-09) |
+|  6 | Period(2025-02-10..2025-02-16) |
+|  7 | Period(2025-02-17..2025-02-23) |
+|  8 | Period(2025-02-24..2025-03-02) |
+|  9 | Period(2025-03-03..2025-03-09) |
+| 10 | Period(2025-03-10..2025-03-16) |
+| 11 | Period(2025-03-17..2025-03-23) |
+| 12 | Period(2025-03-24..2025-03-30) |
+| 13 | Period(2025-03-31..2025-04-06) |
+| 14 | Period(2025-04-07..2025-04-13) |
+| 15 | Period(2025-04-14..2025-04-20) |
+| 16 | Period(2025-04-21..2025-04-27) |
+| 17 | Period(2025-04-28..2025-05-04) |
+| 18 | Period(2025-05-05..2025-05-11) |
+| 19 | Period(2025-05-12..2025-05-18) |
+| 20 | Period(2025-05-19..2025-05-25) |
+| 21 | Period(2025-05-26..2025-06-01) |
+| 22 | Period(2025-06-02..2025-06-08) |
+| 23 | Period(2025-06-09..2025-06-15) |
+| 24 | Period(2025-06-16..2025-06-22) |
+| 25 | Period(2025-06-23..2025-06-29) |
+| 26 | Period(2025-06-30..2025-07-06) |
+| 27 | Period(2025-07-07..2025-07-13) |
+| 28 | Period(2025-07-14..2025-07-20) |
+| 29 | Period(2025-07-21..2025-07-27) |
+| 30 | Period(2025-07-28..2025-08-03) |
+| 31 | Period(2025-08-04..2025-08-10) |
+| 32 | Period(2025-08-11..2025-08-17) |
+| 33 | Period(2025-08-18..2025-08-24) |
+| 34 | Period(2025-08-25..2025-08-31) |
+| 35 | Period(2025-09-01..2025-09-07) |
+| 36 | Period(2025-09-08..2025-09-14) |
+| 37 | Period(2025-09-15..2025-09-21) |
+| 38 | Period(2025-09-22..2025-09-28) |
+| 39 | Period(2025-09-29..2025-09-30) |
+#+end_example
 
 #+begin_example
 |  k | Sub Period                     |
@@ -392,6 +440,11 @@ otherwise it throws an ~ArgumentError~ exception:
    Period.ensure(cm)
   #+end_src
 
+  #+RESULTS:
+  #+begin_example
+  Period(2025-09-01..2025-09-30)
+  #+end_example
+
 #+begin_example
 Period(2025-09-01..2025-09-30)
   #+end_example
@@ -400,6 +453,11 @@ Period(2025-09-01..2025-09-30)
   Period.ensure('from 2016 to 2018-3Q')
 #+end_src
 
+#+RESULTS:
+#+begin_example
+Period(2016-01-01..2018-09-30)
+#+end_example
+
 #+begin_example
 Period(2016-01-01..2018-09-30)
 #+end_example
@@ -407,6 +465,11 @@ Period(2016-01-01..2018-09-30)
 #+begin_src ruby
   Period.ensure(Period.new('2016-01-02', '2017-09-29'))
 #+end_src
+
+#+RESULTS:
+#+begin_example
+Period(2016-01-02..2017-09-29)
+#+end_example
 
 #+begin_example
 Period(2016-01-02..2017-09-29)
