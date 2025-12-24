@@ -14,4 +14,5 @@ group :development do
   gem 'rspec'
   gem 'rubocop', require: false
   gem 'rubocop-ddoherty', git: 'https://github.com/ddoherty03/rubocop-ddoherty.git', branch: 'master', require: false
+  gem 'gem_docs', '>=0.2.0'
 end
