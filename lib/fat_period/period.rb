@@ -207,11 +207,6 @@ class Period
     [first, last] <=> [other.first, other.last]
   end
 
-  # Comparable does not include this.
-  def !=(other)
-    !(self == other)
-  end
-
   # Return the hash value for this Period.  Make Period's with identical
   # values test eql? so that they may be used as hash keys.
   #
@@ -618,8 +613,7 @@ class Period
   # @param round_up_last [Boolean] allow the last period in the returned array
   #   to extend beyond the end of self.
   # @return [Array<Period>] periods that subdivide self into chunks of size, `size`
-  def chunks(size: :month, partial_first: true, partial_last: true,
-    round_up_last: false)
+  def chunks(size: :month, partial_first: true, partial_last: true, round_up_last: false)
     chunk_size = size.to_sym
     raise ArgumentError, "unknown chunk size '#{chunk_size}'" unless CHUNKS.include?(chunk_size)
 
