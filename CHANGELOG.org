@@ -1,3 +1,17 @@
+* Version 3.1.0
+- Add ~Period#year_fraction~ to calculate a ~BigDecimal~ interest-accrual
+  factor from the period's start to a payment or settlement date. Support
+  twelve day-count conventions: four 30/360 variants, Actual/Actual ICMA,
+  Actual/Actual ISDA, Actual/365 Fixed, Actual/360, Actual/364, Actual/365L,
+  Actual/Actual AFB, and 1/1. Default to 30/360 US (~convention: 1~).
+- Support optional February end-of-month adjustments for 30/360 US and a
+  maturity-date exception for 30E/360 ISDA. Require settlement to fall
+  within the period; ICMA supports regular coupon periods only.
+- Add ~Period#freq_per_year~ to infer payment frequency from period length.
+- Document the conventions and examples in ~README.org~, with references
+  to Wikipedia and Section 4.16 of the /2006 ISDA Definitions/. Add specs
+  covering month ends, leap years, maturity dates, and frequency boundaries.
+
 * Version 3.0.0
 - Use the newly-spun-out fat_date library in place of fat_core/date, which no
   longer exists starting with fat_core version 6.0.0.
