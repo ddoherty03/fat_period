@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'fat_date'
+require 'bigdecimal'
 
 # The Period class represents a range of Dates and supports a variety of
 # operations on those ranges.
@@ -498,6 +499,34 @@ class Period
     end
   end
 
+  # Infer payment frequency from the period length, allowing the same tolerance
+  # as chunk_name. Daily periods use the number of days in the starting year.
+  # @param days [Integer] period length; use elapsed days for coupon boundaries
+  def freq_per_year(days: length)
+    case Period.days_to_chunk(days)
+    when :year
+      1
+    when :half
+      2
+    when :quarter
+      4
+    when :bimonth
+      6
+    when :month
+      12
+    when :semimonth
+      24
+    when :biweek
+      26
+    when :week
+      52
+    when :day
+      first.leap? ? 366 : 365
+    else
+      raise ArgumentError, "indeterminate size of period (#{self})"
+    end
+  end
+
   # Return the chunk symbol represented by the number of days given, but allow
   # a deviation from the minimum and maximum number of days for periods larger
   # than bimonths. The default tolerance is +/-10%, but that can be
@@ -889,5 +918,185 @@ class Period
   def gaps(periods)
     to_range.gaps(periods.map(&:to_range))
       .map { |r| Period.new(r.first, r.last) }
+  end
+
+  # Return the fraction of a whole year represented by the part of this Period
+  # from its beginning to the given date2, following the day-count convention,
+  # convention.
+  #
+  # This Period is assumed to represent an entire accrual period, for example,
+  # a whole month for a loan, or a whole quarter or semi-year for a bond.  We
+  # infer the annual frequency of payments from the length of this Period.
+  #
+  # Return the fraction of the year that has elapsed on date2, typically the
+  # settlement date.
+  #
+  # - ~first~ :: is the date on which interest accrual begins
+  # - ~date2~ :: is the date when payment of interest is made,
+  # - ~last~ :: is the date on which the interest accrual period ends,
+  #   usually irrelevant unless actual days in period are considered
+  #
+  # The ~convention~ is the day-count convention to be used.
+  #
+  # That is, the convention for how interest is calculated between
+  # interest payment dates.  This has to do with the fraction by which the
+  # annual interest or coupon rate is multiplied to pay for a partial
+  # period.  The numerator is the number of days that have elapsed; The
+  # denominator is the number of days in the entire year.  These involve
+  # assumptions about the number of days in the months that fall within
+  # the partial period.  They will assume either that every month consists
+  # of 30 days, even if the particular period in which the payment occurs
+  # contains February, July, and August, or they will take into account
+  # the actual number of days in the particular period.
+  #
+  # | ~convention~ | Description        | Source                             |
+  # |--------------+--------------------+------------------------------------|
+  # | 0            | 30/360 Bond        | ISDA 2006 Section 4.16(f)          |
+  # | 1            | 30/360 US          | ISDA 2006 Section 4.16(f) (Note A) |
+  # | 2            | 30E/360            | ISDA 2006 Section 4.16(g)          |
+  # | 3            | 30E/360 ISDA       | ISDA 2006 Section 4.16(h)          |
+  # | 4            | Actual/actual ICMA | ISDA 2006 Section 4.16(c)          |
+  # | 5            | Actual/actual ISDA | ISDA 2006 Section 4.16(b)          |
+  # | 6            | Actual/365 Fixed   | ISDA 2006 Section 4.16(d)          |
+  # | 7            | Actual/360         | ISDA 2006 Section 4.16(e)          |
+  # | 8            | Actual/364         |                                    |
+  # | 9            | Actual/365L        | ICMA Rule 251.1(i)                 |
+  # | 10           | Actual/Actual AFB  |                                    |
+  # | 11           | 1/1                | ISDA 2006 Section 4.16(a)          |
+  #
+  # Source: https://en.wikipedia.org/wiki/Day_count_convention
+  #
+  # Unlike Period#size, day counts use elapsed days, without adding one.
+  # For ICMA, first and last are consecutive coupon boundaries; only regular
+  # coupon periods are supported. Settlement must lie within this Period.
+  # Actual/365L uses the settlement date to determine its denominator, following
+  # the reference above. Convention 11 (1/1) always returns one, even for equal dates.
+  # AFB counts whole years backwards, with the February month-end adjustment
+  # used by QuantLib, then counts the remaining days (start included, end excluded).
+  #
+  # @param date2 [Date, String] payment or settlement date within this Period
+  # @param convention [Integer] day-count convention, 0 through 11; defaults to 1 (30/360 US)
+  # @param eom [Boolean] apply February end-of-month rules for convention 1
+  # @param maturity_date [Date, String, nil] final maturity for convention 3
+  # @return [BigDecimal] accrued fraction of a year
+  def year_fraction(date2, convention: 1, eom: true, maturity_date: nil)
+    unless convention.is_a?(Integer) && (0..11).cover?(convention)
+      raise ArgumentError, 'convention must be an integer 0..11'
+    end
+
+    date1 = first
+    date2 = Date.ensure(date2)
+    unless (first..last).cover?(date2)
+      raise ArgumentError, 'settlement date must lie within the period'
+    end
+
+    maturity_date = Date.ensure(maturity_date) if maturity_date
+    return BigDecimal(1) if convention == 11
+    return BigDecimal(0) if date1 == date2
+
+    if (0..3).cover?(convention)
+      # 360-day methods
+      y1 = date1.year
+      m1 = date1.month
+      d1 = date1.day
+      y2 = date2.year
+      m2 = date2.month
+      d2 = date2.day
+      case convention
+      when 0
+        # 30/360 Bond
+        d1 = [d1, 30].min
+        d2 = d1 > 29 ? [d2, 30].min : d2
+      when 1
+        # 30/360 US
+        if eom && date1.end_of_month? && m1 == 2 && date2.end_of_month? && m2 == 2
+          d2 = 30
+        end
+        if eom && date1.end_of_month? && m1 == 2
+          d1 = 30
+        end
+        # If D2 is 31 and D1 is 30 or 31, then change D2 to 30.
+        if d2 == 31 && (d1 == 30 || d1 == 31)
+          d2 = 30
+        end
+        # If D1 is 31, then change D1 to 30.
+        if d1 == 31
+          d1 = 30
+        end
+      when 2
+        # 30E/360
+        # If D1 is 31, then change D1 to 30.
+        if d1 == 31
+          d1 = 30
+        end
+        # If D2 is 31, then change D2 to 30.
+        if d2 == 31
+          d2 = 30
+        end
+      when 3
+        # 30E/360 ISDA
+        if date1.end_of_month?
+          d1 = 30
+        end
+        if date2.end_of_month? && !(m2 == 2 && maturity_date && date2 == maturity_date)
+          # If D2 is the last day of the month (unless Date2 is the maturity
+          # date and M2 is February), then change D2 to 30.
+          d2 = 30
+        end
+      end
+      num = 360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1)
+      return BigDecimal(num) / 360
+    end
+
+    num = BigDecimal((date2 - date1).to_i)
+    case convention
+    when 4
+      # Actual/actual ICMA: elapsed days in the reference coupon period.
+      num / (freq_per_year(days: (last - first).to_i) * (last - first).to_i)
+    when 5
+      # Actual/actual ISDA: split only the elapsed interval at year boundaries.
+      frac = BigDecimal(0)
+      cursor = date1
+      while cursor < date2
+        boundary = [Date.new(cursor.year + 1, 1, 1), date2].min
+        frac += BigDecimal((boundary - cursor).to_i) / (cursor.leap? ? 366 : 365)
+        cursor = boundary
+      end
+      frac
+    when 6
+      num / 365
+    when 7
+      num / 360
+    when 8
+      num / 364
+    when 9
+      # Actual/365L: annual coupons exclude the start and include the end
+      # when looking for February 29. Other frequencies use the settlement year.
+      leap =
+        if freq_per_year(days: (last - first).to_i) == 1
+          (first.year..date2.year).any? do |year|
+            Date.leap?(year) && first < Date.new(year, 2, 29) && Date.new(year, 2, 29) <= date2
+          end
+        else
+          date2.leap?
+        end
+      num / (leap ? 366 : 365)
+    when 10
+      # Actual/actual AFB: whole years plus the remaining fraction.
+      years = 0
+      remainder_end = date2
+      loop do
+        previous = remainder_end << 12
+        previous += 1 if previous.month == 2 && previous.day == 28 && previous.leap?
+        break if previous < date1
+
+        years += 1
+        remainder_end = previous
+      end
+      leap = (date1.year..remainder_end.year).any? do |year|
+        Date.leap?(year) && date1 <= Date.new(year, 2, 29) && Date.new(year, 2, 29) < remainder_end
+      end
+      years + BigDecimal((remainder_end - date1).to_i) / (leap ? 366 : 365)
+    end
   end
 end
