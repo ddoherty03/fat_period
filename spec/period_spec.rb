@@ -321,7 +321,15 @@ describe Period do
     end
   end
 
-  describe 'sorting' do
+  describe 'comparison and sorting' do
+    it 'compares by first, then last' do
+      p1 = Period.parse_phrase('from 2026').first
+      p2 = Period.parse_phrase('from 2026-1H').first
+      expect(p1 <=> p2).to eq(1)
+      p2 = Period.parse_phrase('from 2026-2H').first
+      expect(p1 <=> p2).to eq(-1)
+    end
+
     it 'sorts by first, then size' do
       periods = []
       periods << Period.new('2012-07-01', '2012-07-31')
@@ -422,6 +430,7 @@ describe Period do
     end
 
     it 'makes a concise period string' do
+      expect(Period.parse_phrase('this_year').first.to_s).to match /\A\d\d\d\d\z/
       expect(Period.new('2013-01-01', '2013-12-31').to_s).to eq('2013')
       expect(Period.new('2013-04-01', '2013-06-30').to_s).to eq('2013-2Q')
       expect(Period.new('2013-03-01', '2013-03-31').to_s).to eq('2013-03')
@@ -713,6 +722,9 @@ describe Period do
 
       expect(Period.new('2013-11-10', '2013-11-23').chunk_sym).to eq(:biweek)
       expect(Period.new('2013-11-04', '2013-11-24').chunk_sym).not_to eq(:biweek)
+
+      expect(Period.new('2013-11-10', '2013-11-16').chunk_sym).to eq(:week)
+      expect(Period.new('2013-11-11', '2013-11-24').chunk_sym).not_to eq(:week)
 
       expect(Period.new('2013-11-10', '2013-11-16').chunk_sym).to eq(:week)
       expect(Period.new('2013-11-11', '2013-11-24').chunk_sym).not_to eq(:week)
