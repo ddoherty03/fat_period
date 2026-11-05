@@ -499,34 +499,6 @@ class Period
     end
   end
 
-  # Infer payment frequency from the period length, allowing the same tolerance
-  # as chunk_name. Daily periods use the number of days in the starting year.
-  # @param days [Integer] period length; use elapsed days for coupon boundaries
-  def freq_per_year(days: length)
-    case Period.days_to_chunk(days)
-    when :year
-      1
-    when :half
-      2
-    when :quarter
-      4
-    when :bimonth
-      6
-    when :month
-      12
-    when :semimonth
-      24
-    when :biweek
-      26
-    when :week
-      52
-    when :day
-      first.leap? ? 366 : 365
-    else
-      raise ArgumentError, "indeterminate size of period (#{self})"
-    end
-  end
-
   # Return the chunk symbol represented by the number of days given, but allow
   # a deviation from the minimum and maximum number of days for periods larger
   # than bimonths. The default tolerance is +/-10%, but that can be
@@ -1097,6 +1069,34 @@ class Period
         Date.leap?(year) && date1 <= Date.new(year, 2, 29) && Date.new(year, 2, 29) < remainder_end
       end
       years + BigDecimal((remainder_end - date1).to_i) / (leap ? 366 : 365)
+    end
+  end
+
+  # Infer payment frequency from the period length, allowing the same tolerance
+  # as chunk_name. Daily periods use the number of days in the starting year.
+  # @param days [Integer] period length; use elapsed days for coupon boundaries
+  def freq_per_year(days: length)
+    case Period.days_to_chunk(days)
+    when :year
+      1
+    when :half
+      2
+    when :quarter
+      4
+    when :bimonth
+      6
+    when :month
+      12
+    when :semimonth
+      24
+    when :biweek
+      26
+    when :week
+      52
+    when :day
+      first.leap? ? 366 : 365
+    else
+      raise ArgumentError, "indeterminate size of period (#{self})"
     end
   end
 end

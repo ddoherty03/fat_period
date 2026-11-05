@@ -1,40 +1,44 @@
-- [Version](#orgea783d2)
-- [Introduction](#orga4fc662)
-- [Installation](#orgaec4e19)
-  - [Installing the gem](#org857d59c)
-- [Usage](#org27555b2)
-  - [Constant Period::FOREVER](#org318e209)
-  - [Construction of Periods](#org6f39571)
-    - [Period.new](#org5a563bb)
-    - [Period.parse](#org6d058b3)
-    - [Period.parse\_phrase](#org144eb0e)
-    - [Period.ensure](#org55a23cc)
-  - [Conversion](#org7ccd090)
-    - [To Range](#orgbe1e782)
-    - [To String](#org51c2cc1)
-    - [TeX Form](#orga18e030)
-  - [Comparison](#orgd257559)
-  - [Enumeration](#orgdf931ed)
-  - [Size](#orgfa5ea85)
-  - [Chunking](#org5f17613)
-  - [Set Operations](#org4f51f21)
-    - [Subset Determination](#org73ded8a)
-    - [Superset Determination](#orgd68741b)
-    - [Intersection](#orgdc7bbc8)
-    - [Difference](#org4688765)
-    - [Union](#orgbd561dd)
-  - [Coverage](#org5e8b768)
-    - [Contains?](#org5b258c7)
-    - [Overlapping](#orgf13eac3)
-    - [Spanning](#orgddbaa24)
-    - [Gaps](#org6782533)
-- [Development](#org65e3ab5)
-- [Contributing](#org2c19dc9)
+- [Version](#org3762cbe)
+- [Introduction](#org9157082)
+- [Installation](#org4c424d2)
+  - [Installing the gem](#org47daed0)
+- [Usage](#org1679def)
+  - [Constant Period::FOREVER](#org92db99a)
+  - [Construction of Periods](#org5204151)
+    - [Period.new](#orgfb49567)
+    - [Period.parse](#orgae8bb3f)
+    - [Period.parse\_phrase](#orgf49412a)
+    - [Period.ensure](#org48bf4e5)
+  - [Conversion](#org2f49294)
+    - [To Range](#org2cbf490)
+    - [To String](#orgac36095)
+    - [TeX Form](#orgaabdc1f)
+  - [Comparison](#orgc2987c9)
+  - [Enumeration](#org152949f)
+  - [Size](#org168f5ff)
+  - [Day-count fractions: Period#year\_fraction](#org5e45035)
+    - [Choosing a convention](#orgb2b83e8)
+    - [Actual-day conventions and boundaries](#org1df872e)
+    - [Sources](#org1cf3195)
+  - [Chunking](#org998956a)
+  - [Set Operations](#orgfc22b86)
+    - [Subset Determination](#orgd84f498)
+    - [Superset Determination](#org2dc4617)
+    - [Intersection](#org43f50d8)
+    - [Difference](#org3240a3e)
+    - [Union](#org56eb4ed)
+  - [Coverage](#org6e5b2c7)
+    - [Contains?](#orgbccc251)
+    - [Overlapping](#org4d4fbd7)
+    - [Spanning](#orga88110c)
+    - [Gaps](#org2b6ee06)
+- [Development](#org520cea9)
+- [Contributing](#org8a96eec)
 
 [![CI](https://github.com/ddoherty03/fat_period/actions/workflows/ruby.yml/badge.svg?branch=master)](https://github.com/ddoherty03/fat_period/actions/workflows/ruby.yml)
 
 
-<a id="orgea783d2"></a>
+<a id="org3762cbe"></a>
 
 # Version
 
@@ -43,11 +47,11 @@
 ```
 
 ```
-Current version is: 3.0.1
+Current version is: 3.1.0
 ```
 
 
-<a id="orga4fc662"></a>
+<a id="org9157082"></a>
 
 # Introduction
 
@@ -56,12 +60,12 @@ Current version is: 3.0.1
 In addition, set operations are provided for Period, as well as methods for breaking a larger periods into an array of smaller periods of various 'chunk' sizes that correspond to calendar-related periods such as days, weeks, months, and so forth.
 
 
-<a id="orgaec4e19"></a>
+<a id="org4c424d2"></a>
 
 # Installation
 
 
-<a id="org857d59c"></a>
+<a id="org47daed0"></a>
 
 ## Installing the gem
 
@@ -88,24 +92,24 @@ $ gem install fat_period
 ```
 
 
-<a id="org27555b2"></a>
+<a id="org1679def"></a>
 
 # Usage
 
 
-<a id="org318e209"></a>
+<a id="org92db99a"></a>
 
 ## Constant Period::FOREVER
 
 The `Period` class depends on the extensions to `Date` made by the `fat_core` gem, which you can read about [here](https://github.com/ddoherty03/fat_core). It defines a constant, `Period::FOREVER`, which is defined as extending from `Date::BOT` to `Date::EOT`, which are defined in `fat_date` as 1900-01-01 and 3000-12-31, respectively and define the beginning of time and end of time for practical commercial purposes. The constant is not frozen, so you can re-define it to your liking.
 
 
-<a id="org6f39571"></a>
+<a id="org5204151"></a>
 
 ## Construction of Periods
 
 
-<a id="org5a563bb"></a>
+<a id="orgfb49567"></a>
 
 ### Period.new
 
@@ -119,8 +123,8 @@ p3 = Period.new('1961-01-21', '1963-11-22')
 ```
 
 ```
-| 2025-12-24 to 2026-01-23 |
-| 1963-11-22 to 2025-12-24 |
+| 2026-11-04 to 2026-12-04 |
+| 1963-11-22 to 2026-11-04 |
 | 1961-01-21 to 1963-11-22 |
 ```
 
@@ -133,7 +137,7 @@ p3 = Period.new('1961-01-21', '1963-11-22')
 ```
 
 
-<a id="org6d058b3"></a>
+<a id="orgae8bb3f"></a>
 
 ### Period.parse
 
@@ -251,7 +255,7 @@ A "spec" is a string designating some period of time. There are many ways of spe
     ```
 
 
-<a id="org144eb0e"></a>
+<a id="orgf49412a"></a>
 
 ### Period.parse\_phrase
 
@@ -416,7 +420,7 @@ tab
 ```
 
 
-<a id="org55a23cc"></a>
+<a id="org48bf4e5"></a>
 
 ### Period.ensure
 
@@ -475,102 +479,207 @@ Period(2016-01-02..2017-09-29)
 ```
 
 
-<a id="org7ccd090"></a>
+<a id="org2f49294"></a>
 
 ## Conversion
 
 
-<a id="orgbe1e782"></a>
+<a id="org2cbf490"></a>
 
 ### To Range
 
 
-<a id="org51c2cc1"></a>
+<a id="orgac36095"></a>
 
 ### To String
 
 
-<a id="orga18e030"></a>
+<a id="orgaabdc1f"></a>
 
 ### TeX Form
 
 
-<a id="orgd257559"></a>
+<a id="orgc2987c9"></a>
 
 ## Comparison
 
 
-<a id="orgdf931ed"></a>
+<a id="org152949f"></a>
 
 ## Enumeration
 
 
-<a id="orgfa5ea85"></a>
+<a id="org168f5ff"></a>
 
 ## Size
 
 
-<a id="org5f17613"></a>
+<a id="org5e45035"></a>
+
+## Day-count fractions: Period#year\_fraction
+
+`year_fraction` returns a `BigDecimal` factor for calculating interest from `first` to a payment or settlement date. Usually this is a fraction of a year: multiply the principal by the annual rate and this factor to calculate accrued interest. The default convention is **30/360 US** (`convention: 1`).
+
+```
+period.year_fraction(date2, convention: 1, eom: true, maturity_date: nil)
+```
+
+The dates correspond to the notation in Wikipedia's [Day count convention](https://en.wikipedia.org/wiki/Day_count_convention) article:
+
+-   `first` is Date1, the start of accrual.
+-   `date2` is Date2, the payment or settlement date, supplied as a `Date` or a date string. It must fall within the Period, including its endpoints.
+-   `last` is Date3, the next coupon payment date. For ICMA, construct the Period with consecutive coupon boundaries.
+
+Day counts use elapsed days, without adding one as `Period#size` does. For example, January 1 to July 1 is the reference period for a coupon paid on July 1; use July 1 as `last`, rather than June 30. Passing `last` as the settlement date calculates the full coupon's factor.
+
+```ruby
+coupon = Period.new('2024-01-01', '2024-07-01')
+factor = coupon.year_fraction('2024-04-01')
+interest = BigDecimal('1000') * BigDecimal('0.05') * factor
+[factor.to_s('F'), interest.to_s('F')]
+```
+
+```
+| 0.25 | 12.5 |
+```
+
+
+<a id="orgb2b83e8"></a>
+
+### Choosing a convention
+
+The convention numbers are specific to `fat_period`; they are not Excel's `YEARFRAC` basis numbers. Supply `convention: 0` explicitly for Bond Basis. The ISDA references below are to Section 4.16 of the *2006 ISDA Definitions*.
+
+| Convention | Name                | Reference                       |
+|---------- |------------------- |------------------------------- |
+| 0          | 30/360 Bond Basis   | ISDA 4.16(f)                    |
+| 1          | 30/360 US (default) | 4.16(f), plus US February rules |
+| 2          | 30E/360             | ISDA 4.16(g)                    |
+| 3          | 30E/360 ISDA        | ISDA 4.16(h)                    |
+| 4          | Actual/Actual ICMA  | ISDA 4.16(c); ICMA Rule 251     |
+| 5          | Actual/Actual ISDA  | ISDA 4.16(b)                    |
+| 6          | Actual/365 Fixed    | ISDA 4.16(d)                    |
+| 7          | Actual/360          | ISDA 4.16(e)                    |
+| 8          | Actual/364          | Wikipedia's Actual/364 section  |
+| 9          | Actual/365L         | Wikipedia's Actual/365L section |
+| 10         | Actual/Actual AFB   | Wikipedia's AFB discussion      |
+| 11         | 1/1                 | ISDA 4.16(a)                    |
+
+For convention 1, `eom: true` applies the February end-of-month rules for investments that pay at month end. Set `eom: false` to omit those February adjustments. The remaining 30/360 adjustments still apply.
+
+For convention 3, `maturity_date:` accepts a `Date` or date string and identifies the investment's final maturity. When settlement is that date and is the last day of February, its day number is left unchanged. Otherwise the usual month-end adjustment applies. Maturity is not inferred from `last`.
+
+```ruby
+final_coupon = Period.new('2023-08-31', '2024-02-29')
+ordinary = final_coupon.year_fraction('2024-02-29', convention: 3)
+at_maturity = final_coupon.year_fraction(
+  '2024-02-29', convention: 3, maturity_date: '2024-02-29'
+)
+[ordinary.to_s('F'), at_maturity.round(10).to_s('F')]
+```
+
+```
+| 0.5 | 0.4972222222 |
+```
+
+
+<a id="org1df872e"></a>
+
+### Actual-day conventions and boundaries
+
+ICMA (4) divides elapsed days by the product of payment frequency and elapsed days in the full coupon period. Frequency is inferred from the full period's length. For example, both a full 181-day half-year coupon and a full 184-day half-year coupon have a factor of 0.5, but their daily accruals differ.
+
+```ruby
+coupon = Period.new('2024-01-01', '2024-07-01')
+partial = coupon.year_fraction('2024-04-01', convention: 4)
+full = coupon.year_fraction(coupon.last, convention: 4)
+[partial.to_s('F'), full.to_s('F')]
+```
+
+```
+| 0.25 | 0.5 |
+```
+
+ICMA supports regular coupon periods only; it does not construct notional coupon schedules for irregular first or final coupons. Frequency inference allows the same 10% length tolerance as `chunk_name` for monthly and longer periods. An unrecognizable length raises `ArgumentError` for conventions that require frequency (4 and 9).
+
+ISDA Actual/Actual (5) splits the elapsed interval at calendar-year boundaries, using 365 or 366 for each portion. Conventions 6, 7, and 8 use fixed denominators of 365, 360, and 364 respectively.
+
+Actual/365L (9) follows the Wikipedia article's settlement-date rule: for annual payments, it uses 366 if February 29 falls after `first` and on or before settlement, otherwise 365. For other frequencies, it uses the number of days in the settlement year. The full period determines frequency, not the leap-day test interval.
+
+AFB (10) counts complete years backwards from settlement, then calculates the remaining initial fraction. It uses the ISDA backward-counting February adjustment described in the article: a February 28 anniversary moves to February 29 when the preceding year is a leap year. The remaining fraction uses 366 only when it includes February 29, counting its start but excluding its end.
+
+Equal start and settlement dates return zero for conventions 0 through 10. Convention 11 (1/1) always returns one, even for equal dates: it applies the full contractual rate without prorating for time. Invalid convention numbers or settlement dates outside the Period raise `ArgumentError`.
+
+
+<a id="org1cf3195"></a>
+
+### Sources
+
+-   [Wikipedia: Day count convention](https://en.wikipedia.org/wiki/Day_count_convention) gives the formulas, naming variants, and discussion of the conventions implemented here.
+-   [2006 ISDA Definitions](https://www.isda.org/book/2006-isda-definitions/), Section 4.16, *Day Count Fraction*, is the primary source for most of these rules. A [PDF copy hosted by Standard Chartered](https://www.sc.com/en/uploads/sites/66/content/docs/2006-ISDA-Definitions.pdf) contains the section on printed pages 11-13. Section 4.16(f) defines Bond Basis; the additional US February rules are described in the Wikipedia article rather than that clause.
+
+
+<a id="org998956a"></a>
 
 ## Chunking
 
 
-<a id="org4f51f21"></a>
+<a id="orgfc22b86"></a>
 
 ## Set Operations
 
 
-<a id="org73ded8a"></a>
+<a id="orgd84f498"></a>
 
 ### Subset Determination
 
 
-<a id="orgd68741b"></a>
+<a id="org2dc4617"></a>
 
 ### Superset Determination
 
 
-<a id="orgdc7bbc8"></a>
+<a id="org43f50d8"></a>
 
 ### Intersection
 
 
-<a id="org4688765"></a>
+<a id="org3240a3e"></a>
 
 ### Difference
 
 
-<a id="orgbd561dd"></a>
+<a id="org56eb4ed"></a>
 
 ### Union
 
 
-<a id="org5e8b768"></a>
+<a id="org6e5b2c7"></a>
 
 ## Coverage
 
 
-<a id="org5b258c7"></a>
+<a id="orgbccc251"></a>
 
 ### Contains?
 
 
-<a id="orgf13eac3"></a>
+<a id="org4d4fbd7"></a>
 
 ### Overlapping
 
 
-<a id="orgddbaa24"></a>
+<a id="orga88110c"></a>
 
 ### Spanning
 
 
-<a id="org6782533"></a>
+<a id="org2b6ee06"></a>
 
 ### Gaps
 
 
-<a id="org65e3ab5"></a>
+<a id="org520cea9"></a>
 
 # Development
 
@@ -579,7 +688,7 @@ After checking out the repo, run \`bin/setup\` to install dependencies. Then, ru
 To install this gem onto your local machine, run \`bundle exec rake install\`. To release a new version, update the version number in \`version.rb\`, and then run \`bundle exec rake release\`, which will create a git tag for the version, push git commits and tags, and push the \`.gem\` file to [rubygems.org](<https://rubygems.org>).
 
 
-<a id="org2c19dc9"></a>
+<a id="org8a96eec"></a>
 
 # Contributing
 

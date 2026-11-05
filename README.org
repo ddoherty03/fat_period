@@ -93,8 +93,8 @@ object that responds to ~#to_s~ and can be parsed as a Date by Date.parse:
 
 #+RESULTS:
 #+begin_example
-| 2025-12-24 to 2026-01-23 |
-| 1963-11-22 to 2025-12-24 |
+| 2026-11-04 to 2026-12-04 |
+| 1963-11-22 to 2026-11-04 |
 | 1961-01-21 to 1963-11-22 |
 #+end_example
 
