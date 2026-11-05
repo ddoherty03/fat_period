@@ -68,7 +68,7 @@ Or install it yourself as:
 #+RESULTS:
 
 * Usage
-** Constant Period::FOREVER
+** Constant ~Period::FOREVER~
 
 The ~Period~ class depends on the extensions to ~Date~ made by the ~fat_core~
 gem, which you can read about [[https://github.com/ddoherty03/fat_core][here]].  It defines a constant, ~Period::FOREVER~,
@@ -78,7 +78,7 @@ the beginning of time and end of time for practical commercial purposes.  The
 constant is not frozen, so you can re-define it to your liking.
 
 ** Construction of Periods
-*** Period.new
+*** ~Period.new~
 A Period is constructed with two arguments for the begin and end date.  The
 begin date must be on or before the end date.  Each argument can be (1) a
 Date, (2) a string parseable as a Date by the Date.parse method, or (3) an
@@ -107,7 +107,7 @@ object that responds to ~#to_s~ and can be parsed as a Date by Date.parse:
 | Camelot lasted 1036 days |
 #+end_example
 
-*** Period.parse
+*** ~Period.parse~
 A more convenient way to construct a period is provided by ~Period.parse~.  It
 takes two strings as its arguments, a mandatory "from-spec" and an optional
 "to-spec":
@@ -234,7 +234,7 @@ skipping forward instead.
 | 2012-11   | 2012-11-4Thur | Period(2012-11-01..2012-11-22) | And through Thanksgiving (not always the /last/ Thursday!) |
 #+end_example
 
-*** Period.parse_phrase
+*** ~Period.parse_phrase~
 For example:
 
 The ~Period.parse_phrase~ method will take a string having a 'from', 'to', and
@@ -409,7 +409,7 @@ of the overall period.
 #+end_example
 
 
-*** Period.ensure
+*** ~Period.ensure~
 ~Period.ensure~ tries to interpret its argument as a ~Period~ and returns it;
 otherwise it throws an ~ArgumentError~ exception:
 
@@ -472,7 +472,7 @@ Period(2016-01-02..2017-09-29)
 #+end_example
 
 ** Conversion
-*** To Range
+*** ~#to_range~
 ~Period#to_range~ converts the ~Period~ to a ~Range~ with limits
 ~first..last~.
 
@@ -485,7 +485,7 @@ Period(2016-01-02..2017-09-29)
 | Range | 2026-01-01..2026-12-31 |
 #+end_example
 
-*** To String
+*** ~#to_s~
 ~Period#to_s~ does ~String~ conversion but using compact notation for
 years, halves, quarters, and months if possible; otherwise, it gives
 ~first~ and ~last~ explicitly:
@@ -519,7 +519,7 @@ years, halves, quarters, and months if possible; otherwise, it gives
 | from 2026-10 to 2026-10-30 | 2026-10-01 to 2026-10-30 |
 #+end_example
 
-*** TeX Quote
+*** ~#tex_quote~
 ~Period#tex_quote~ formats a period in a way suitable for TeX or LaTeX.
 Mainly, this causes it to use an "en-dash" to separate the end points
 and hyphens to separate date components.
@@ -554,7 +554,7 @@ and hyphens to separate date components.
 #+end_example
 
 ** Comparison
-The ~Period~ class includes ~Enumerable~ so periods can be compared
+The ~Period~ class includes ~Comparable~ so periods can be compared
 directly.  Period are compared by ~first~, and if those are the same,
 then by ~last~, and those using normal ~Date~ comparison.
 
@@ -591,8 +591,9 @@ then by ~last~, and those using normal ~Date~ comparison.
 #+end_example
 
 ** Enumeration
-~Period~ defines an ~#each~ method that iterates through each day in the
-period:
+*** ~#each~
+~Period~ includes ~Enumerable~ and defines an ~#each~ method that
+iterates through each day in the period:
 
 #+begin_src ruby
 pd = Period.parse('2024-02')
@@ -641,7 +642,7 @@ tab
 | 29 | 2024-02-29 |
 #+end_example
 
-** Size
+*** ~#size~
 ~Period#size~ returns the number of days in the period.
 
 #+begin_src ruby
@@ -670,7 +671,7 @@ standard libraries do:
 ~FatPeriod~ refers to these special kinds of periods as "chunks", and
 they are often useful in financial applications.
 
-*** Finding a Chunk Containing a Date
+*** ~Period.<chunk>_containing(date)
 For each chunk, ~FatPeriod~ provides a method for returning the ~Period~
 of the size of the given chunk containing a given date.  For example, to
 find the calendar quarter containing '2016-08-04', you can call
@@ -755,7 +756,7 @@ tab
 | year       | 2026                     |
 #+end_example
 
-*** Testing whether a Period is a Chunk?
+*** ~#chunk_sym~ and ~#chunk_name~
 A ~Period~ can determine if it is a chunk with the ~#chunk_sym~ method.
 It's ~first~ and ~last~ dates correspond to a chunk boundary, it returns
 a ~Symbol~ for its chunks size, or the symbol :irregular otherwise. A
@@ -794,7 +795,7 @@ tab
 | 2016-01-02 | 2016-04-01 | :irregular |
 #+end_example
 
-*** ~Period#chunks(size: :month, partial_first: true, partial_last: true, round_up_last: false)
+*** ~#chunks(size: :month, partial_first: true, partial_last: true, round_up_last: false)
 You may want to divide a year into months, or a quarter into
 semi-months.  For this ~FatTable~ provides ~Period#chunks~.  By default,
 the first and last chunks will be partial, the first starting at
@@ -893,7 +894,7 @@ of another, and so-forth.  Since these resemble the same sorts of
 questions one might ask of sets of numbers, these are called "set
 operations" on ~Period~s.
 
-*** ~subset_of?(other)
+*** ~#subset_of?(other)~
 Is this ~Period~ wholly contained within the ~other~ ~Period~?
 
 #+begin_src ruby
@@ -925,7 +926,7 @@ true
 false
 #+end_example
 
-*** ~proper_subset_of?(other)~
+*** ~#proper_subset_of?(other)~
 Is this ~Period~ wholly contained within the ~other~ ~Period~ but not
 identical to it?
 
@@ -949,7 +950,7 @@ Note that every ~Period~ is /not/ it's own proper subset:
 false
 #+end_example
 
-*** ~superset_of(other)~
+*** ~#superset_of(other)~
 Does this ~Period~ wholly contain ~other~ ~Period~?
 
 #+begin_src ruby
@@ -981,7 +982,7 @@ Note that every ~Period~ is it's own superset:
 true
 #+end_example
 
-*** ~proper_superset_of(other)~
+*** ~#proper_superset_of(other)~
 Does this ~Period~ wholly contain ~other~ ~Period~ without being
 identical to it?
 
@@ -1005,7 +1006,7 @@ Note that every ~Period~ is /not/ it's own proper superset:
 false
 #+end_example
 
-*** ~intersection(other)
+*** ~#intersection(other)~
 Return a new ~Period~ that is contained in both the subject ~Period~ and
 ~other~.
 
@@ -1048,7 +1049,7 @@ Return ~nil~ if there is no intersection:
 nil
 #+end_example
 
-*** ~union(other)~
+*** ~#union(other)~
 If two ~Periods~ either overlap or are contiguous, you can return a
 ~Period~ that spans both:
 
@@ -1081,7 +1082,7 @@ Return ~nil~ if there is no overlap or contiguity:
 nil
 #+end_example
 
-*** ~difference(other)~
+*** ~#difference(other)~
 Return an ~Array~ of ~Periods~ representing the subject ~Period~ with
 any overlap with ~other~ excluded.  If there is no overlap, return the
 subject ~Period~.
@@ -1117,7 +1118,7 @@ The operator ~-~ can be used as well:
 #+end_example
 
 ** Coverage
-*** ~contains?(date)~
+*** ~#contains?(date)~
 Return whether the subject ~Period~ contains the given ~Date~.
 
 #+begin_src ruby
@@ -1138,13 +1139,26 @@ true
 false
 #+end_example
 
-*** ~Period.overlaps_among(periods)
-This class method takes an ~Array~ of ~Periods~ and returns an ~Array~
-of ~Periods~ for the regions of the given periods that overlap one
-another.
+*** ~Period.overlaps_among?(periods)
+This class method takes an ~Array~ of ~Periods~ and returns whether the
+given periods have any overlaps with one another.
 
-*** Spanning
-*** Gaps
+*** ~#overlaps_among?
+Similar to ~Period.overlaps_among~ except that it returns true only if
+any of the overlaps occur within the subject ~Period~.
+
+*** ~#spanned_by(periods)~
+Returns whether the given ~Array~ of ~Periods~ "span" the subject
+~Period~, that is, whether they collectively cover the subject ~Period~
+with no overlaps and no gaps.
+
+*** ~#gaps~
+Returns an ~Array~ of ~Period~s representing the gaps within the subject
+~Period~ not covered by the given ~Array~ of ~Periods~.  Overlaps among
+the periods do not affect the result nor do gaps outside the range of
+the subject ~Period~.  Ordering among the given ~periods~ does not
+matter.
+
 
 ** Interest Day-count fraction (~#year_fraction~)
 For interest-related calculations, the methods by which accrued interest
