@@ -772,7 +772,7 @@ describe Period do
       expect(period1.overlaps?(period3)).to be false
     end
 
-    it 'knows whether an array of periods have overlaps within it' do
+    it 'knows whether an array of periods have overlaps among them' do
       months = (1..12).to_a.map { |k| Period.parse("2013-#{k}") }
       year = Period.parse('2013')
       expect(year.overlaps_among?(months)).to be false
