@@ -186,7 +186,7 @@ class Period
     "Period(#{first.iso}..#{last.iso})"
   end
 
-  # Allow erb documents can directly interpolate ranges
+  # Allow erb documents to directly interpolate ranges
   def tex_quote
     "#{first.iso}--#{last.iso}"
   end
@@ -333,38 +333,47 @@ class Period
 
   # Return a period representing a chunk containing a given Date.
   def self.day_containing(date)
+    date = Date.ensure_date(date)
     Period.new(date, date)
   end
 
   def self.week_containing(date)
+    date = Date.ensure_date(date)
     Period.new(date.beginning_of_week, date.end_of_week)
   end
 
   def self.biweek_containing(date)
+    date = Date.ensure_date(date)
     Period.new(date.beginning_of_biweek, date.end_of_biweek)
   end
 
   def self.semimonth_containing(date)
+    date = Date.ensure_date(date)
     Period.new(date.beginning_of_semimonth, date.end_of_semimonth)
   end
 
   def self.month_containing(date)
+    date = Date.ensure_date(date)
     Period.new(date.beginning_of_month, date.end_of_month)
   end
 
   def self.bimonth_containing(date)
+    date = Date.ensure_date(date)
     Period.new(date.beginning_of_bimonth, date.end_of_bimonth)
   end
 
   def self.quarter_containing(date)
+    date = Date.ensure_date(date)
     Period.new(date.beginning_of_quarter, date.end_of_quarter)
   end
 
   def self.half_containing(date)
+    date = Date.ensure_date(date)
     Period.new(date.beginning_of_half, date.end_of_half)
   end
 
   def self.year_containing(date)
+    date = Date.ensure_date(date)
     Period.new(date.beginning_of_year, date.end_of_year)
   end
 
@@ -804,13 +813,14 @@ class Period
     to_range.overlaps?(other.to_range)
   end
 
+  # @group Coverage
+
   # Return whether this Period contains the given date.
   #
   # @param date [Date] date to test
   # @return [Boolean] is the given date within this Period?
   def contains?(date)
-    date = date.to_date if date.respond_to?(:to_date)
-    raise ArgumentError, 'argument must be a Date' unless date.is_a?(Date)
+    date = Date.ensure(date)
 
     to_range.cover?(date)
   end

@@ -374,7 +374,7 @@ describe Period do
       pp = Period.new('2013-01-01', '2013-12-31')
       expect {
         pp.contains?(Period.new('2013-06-01', '2013-06-30'))
-      }.to raise_error(/must be a Date/)
+      }.to raise_error(/cannot convert/)
 
       # But not if argument can be converted to date with to_date
       expect {
