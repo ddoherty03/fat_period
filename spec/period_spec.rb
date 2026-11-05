@@ -430,7 +430,7 @@ describe Period do
     end
 
     it 'makes a concise period string' do
-      expect(Period.parse_phrase('this_year').first.to_s).to match /\A\d\d\d\d\z/
+      expect(Period.parse_phrase('this_year').first.to_s).to match(/\A\d\d\d\d\z/)
       expect(Period.new('2013-01-01', '2013-12-31').to_s).to eq('2013')
       expect(Period.new('2013-04-01', '2013-06-30').to_s).to eq('2013-2Q')
       expect(Period.new('2013-03-01', '2013-03-31').to_s).to eq('2013-03')
