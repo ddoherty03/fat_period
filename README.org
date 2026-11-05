@@ -93,8 +93,8 @@ object that responds to ~#to_s~ and can be parsed as a Date by Date.parse:
 
 #+RESULTS:
 #+begin_example
-| 2026-11-04 to 2026-12-04 |
-| 1963-11-22 to 2026-11-04 |
+| 2026-11-05 to 2026-12-05 |
+| 1963-11-22 to 2026-11-05 |
 | 1961-01-21 to 1963-11-22 |
 #+end_example
 
@@ -744,7 +744,7 @@ tab
 #+begin_example
 | Chunk Size | Current Period           |
 |------------+--------------------------|
-| day        | 2026-11-04 to 2026-11-04 |
+| day        | 2026-11-05 to 2026-11-05 |
 | week       | 2026-11-02 to 2026-11-08 |
 | biweek     | 2026-10-26 to 2026-11-08 |
 | semimonth  | 2026-11-01 to 2026-11-15 |
@@ -790,7 +790,7 @@ tab
 | 2017-02-01 | 2017-02-28 | :month     |
 | 2017-01-01 | 2017-02-28 | :bimonth   |
 | 2016-01-01 | 2016-03-31 | :quarter   |
-| 2016-03-20 | 2016-03-26 | :irregular |
+| 2016-03-20 | 2016-03-26 | :week      |
 | 2016-01-02 | 2016-04-01 | :irregular |
 #+end_example
 
@@ -1193,10 +1193,10 @@ tab
 
 #+RESULTS:
 #+begin_example
-| Principal    | 1000.0                   |
-| Rate         | 0.05                     |
+| Principal    |                   1000.0 |
+| Rate         |                     0.05 |
 | Period       | 2024-01-01 to 2024-07-01 |
-| Payment Date | 2024-04-01               |
+| Payment Date |               2024-04-01 |
 #+end_example
 
 #+begin_src ruby :results value table
@@ -1219,7 +1219,7 @@ tab2
 | 1          |   0.25 |     12.5 |
 | 2          |   0.25 |     12.5 |
 | 3          |   0.25 |     12.5 |
-| 4          | 0.2514 |    12.57 |
+| 4          |   0.25 |     12.5 |
 | 5          | 0.2486 |    12.43 |
 | 6          | 0.2493 |    12.47 |
 | 7          | 0.2528 |    12.64 |
