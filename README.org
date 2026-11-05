@@ -273,20 +273,6 @@ as a 'from' clause.
 | 8 | Period(2025-09-01..2025-09-30) |
 #+end_example
 
-#+begin_example
-| k | Sub Period                     |
-|---+--------------------------------|
-| 0 | Period(2025-01-01..2025-01-31) |
-| 1 | Period(2025-02-01..2025-02-28) |
-| 2 | Period(2025-03-01..2025-03-31) |
-| 3 | Period(2025-04-01..2025-04-30) |
-| 4 | Period(2025-05-01..2025-05-31) |
-| 5 | Period(2025-06-01..2025-06-30) |
-| 6 | Period(2025-07-01..2025-07-31) |
-| 7 | Period(2025-08-01..2025-08-31) |
-| 8 | Period(2025-09-01..2025-09-30) |
-#+end_example
-
 The period named in the 'per' clause is called a 'chunk' and there are several
 valid chunk names in ~FatPeriod~:
 
@@ -363,52 +349,6 @@ of the overall period.
 | 39 | Period(2025-09-29..2025-09-30) |
 #+end_example
 
-#+begin_example
-|  k | Sub Period                     |
-|----+--------------------------------|
-|  0 | Period(2025-01-01..2025-01-05) |
-|  1 | Period(2025-01-06..2025-01-12) |
-|  2 | Period(2025-01-13..2025-01-19) |
-|  3 | Period(2025-01-20..2025-01-26) |
-|  4 | Period(2025-01-27..2025-02-02) |
-|  5 | Period(2025-02-03..2025-02-09) |
-|  6 | Period(2025-02-10..2025-02-16) |
-|  7 | Period(2025-02-17..2025-02-23) |
-|  8 | Period(2025-02-24..2025-03-02) |
-|  9 | Period(2025-03-03..2025-03-09) |
-| 10 | Period(2025-03-10..2025-03-16) |
-| 11 | Period(2025-03-17..2025-03-23) |
-| 12 | Period(2025-03-24..2025-03-30) |
-| 13 | Period(2025-03-31..2025-04-06) |
-| 14 | Period(2025-04-07..2025-04-13) |
-| 15 | Period(2025-04-14..2025-04-20) |
-| 16 | Period(2025-04-21..2025-04-27) |
-| 17 | Period(2025-04-28..2025-05-04) |
-| 18 | Period(2025-05-05..2025-05-11) |
-| 19 | Period(2025-05-12..2025-05-18) |
-| 20 | Period(2025-05-19..2025-05-25) |
-| 21 | Period(2025-05-26..2025-06-01) |
-| 22 | Period(2025-06-02..2025-06-08) |
-| 23 | Period(2025-06-09..2025-06-15) |
-| 24 | Period(2025-06-16..2025-06-22) |
-| 25 | Period(2025-06-23..2025-06-29) |
-| 26 | Period(2025-06-30..2025-07-06) |
-| 27 | Period(2025-07-07..2025-07-13) |
-| 28 | Period(2025-07-14..2025-07-20) |
-| 29 | Period(2025-07-21..2025-07-27) |
-| 30 | Period(2025-07-28..2025-08-03) |
-| 31 | Period(2025-08-04..2025-08-10) |
-| 32 | Period(2025-08-11..2025-08-17) |
-| 33 | Period(2025-08-18..2025-08-24) |
-| 34 | Period(2025-08-25..2025-08-31) |
-| 35 | Period(2025-09-01..2025-09-07) |
-| 36 | Period(2025-09-08..2025-09-14) |
-| 37 | Period(2025-09-15..2025-09-21) |
-| 38 | Period(2025-09-22..2025-09-28) |
-| 39 | Period(2025-09-29..2025-09-30) |
-#+end_example
-
-
 *** ~Period.ensure~
 ~Period.ensure~ tries to interpret its argument as a ~Period~ and returns it;
 otherwise it throws an ~ArgumentError~ exception:
@@ -441,10 +381,6 @@ otherwise it throws an ~ArgumentError~ exception:
   Period(2025-09-01..2025-09-30)
   #+end_example
 
-#+begin_example
-Period(2025-09-01..2025-09-30)
-  #+end_example
-
 #+begin_src ruby
   Period.ensure('from 2016 to 2018-3Q')
 #+end_src
@@ -454,19 +390,11 @@ Period(2025-09-01..2025-09-30)
 Period(2016-01-01..2018-09-30)
 #+end_example
 
-#+begin_example
-Period(2016-01-01..2018-09-30)
-#+end_example
-
 #+begin_src ruby
   Period.ensure(Period.new('2016-01-02', '2017-09-29'))
 #+end_src
 
 #+RESULTS:
-#+begin_example
-Period(2016-01-02..2017-09-29)
-#+end_example
-
 #+begin_example
 Period(2016-01-02..2017-09-29)
 #+end_example
@@ -671,7 +599,7 @@ standard libraries do:
 ~FatPeriod~ refers to these special kinds of periods as "chunks", and
 they are often useful in financial applications.
 
-*** ~Period.<chunk>_containing(date)
+*** ~Period.<chunk>_containing(date)~
 For each chunk, ~FatPeriod~ provides a method for returning the ~Period~
 of the size of the given chunk containing a given date.  For example, to
 find the calendar quarter containing '2016-08-04', you can call
@@ -795,7 +723,7 @@ tab
 | 2016-01-02 | 2016-04-01 | :irregular |
 #+end_example
 
-*** ~#chunks(size: :month, partial_first: true, partial_last: true, round_up_last: false)
+*** ~#chunks(size: :month, partial_first: true, partial_last: true, round_up_last: false)~
 You may want to divide a year into months, or a quarter into
 semi-months.  For this ~FatTable~ provides ~Period#chunks~.  By default,
 the first and last chunks will be partial, the first starting at
@@ -1139,11 +1067,11 @@ true
 false
 #+end_example
 
-*** ~Period.overlaps_among?(periods)
+*** ~Period.overlaps_among?(periods)~
 This class method takes an ~Array~ of ~Periods~ and returns whether the
 given periods have any overlaps with one another.
 
-*** ~#overlaps_among?
+*** ~#overlaps_among?~
 Similar to ~Period.overlaps_among~ except that it returns true only if
 any of the overlaps occur within the subject ~Period~.
 

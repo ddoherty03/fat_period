@@ -1,51 +1,51 @@
-- [Version](#orgfd471ac)
-- [Introduction](#org8877425)
-- [Installation](#org1e1b80c)
-  - [Installing the gem](#org68e1417)
-- [Usage](#orgcd9d342)
-  - [Constant `Period::FOREVER`](#org9cd5c6b)
-  - [Construction of Periods](#org1e5f1a6)
-    - [`Period.new`](#org8388230)
-    - [`Period.parse`](#org7ba942f)
-    - [`Period.parse_phrase`](#orgaae43c8)
-    - [`Period.ensure`](#orgeafc507)
-  - [Conversion](#org5bfe2ad)
-    - [`#to_range`](#org80d71fa)
-    - [`#to_s`](#org3d35257)
-    - [`#tex_quote`](#orga76b942)
-  - [Comparison](#org8e921c0)
-  - [Enumeration](#org38966b2)
-    - [`#each`](#org8de5f15)
-    - [`#size`](#org08306c0)
-  - [Chunking](#orgf1c37f4)
-    - [~Period.<chunk>\_containing(date)](#org30d2bb2)
-    - [`#chunk_sym` and `#chunk_name`](#org730ff70)
-    - [~#chunks(size: :month, partial\_first: true, partial\_last: true, round\_up\_last: false)](#orge359675)
-  - [Set Operations](#org44aec48)
-    - [`#subset_of?(other)`](#orgf284ae6)
-    - [`#proper_subset_of?(other)`](#org1285119)
-    - [`#superset_of(other)`](#org0e274bc)
-    - [`#proper_superset_of(other)`](#org2e47c02)
-    - [`#intersection(other)`](#org334a36c)
-    - [`#union(other)`](#org860ac03)
-    - [`#difference(other)`](#org1ece2c8)
-  - [Coverage](#org1d34f89)
-    - [`#contains?(date)`](#org92b46df)
-    - [~Period.overlaps\_among?(periods)](#org3eb90df)
-    - [~#overlaps\_among?](#orge1036b1)
-    - [`#spanned_by(periods)`](#orgd8debf7)
-    - [`#gaps`](#orgc931cca)
-  - [Interest Day-count fraction (`#year_fraction`)](#org5186bff)
-    - [Choosing a convention](#org0b78f81)
-    - [Actual-day conventions and boundaries](#org944c40f)
-    - [Sources](#org56d633d)
-- [Development](#orga1f9737)
-- [Contributing](#org8f0cefe)
+- [Version](#orgc5d4d8e)
+- [Introduction](#org1ba80db)
+- [Installation](#org0dff64a)
+  - [Installing the gem](#org124d8ed)
+- [Usage](#orge5c3efb)
+  - [Constant `Period::FOREVER`](#org72bd7c0)
+  - [Construction of Periods](#orgbb2b7e4)
+    - [`Period.new`](#orgd8f5b9d)
+    - [`Period.parse`](#orga32a08b)
+    - [`Period.parse_phrase`](#orgaf07a44)
+    - [`Period.ensure`](#org71af6fd)
+  - [Conversion](#org033812c)
+    - [`#to_range`](#org789b885)
+    - [`#to_s`](#orgd4e7bf1)
+    - [`#tex_quote`](#org4695aee)
+  - [Comparison](#org62e3d88)
+  - [Enumeration](#org0a448ca)
+    - [`#each`](#org13b1aed)
+    - [`#size`](#org73ba385)
+  - [Chunking](#org44148fd)
+    - [`Period.<chunk>_containing(date)`](#org3a1451a)
+    - [`#chunk_sym` and `#chunk_name`](#orgabdc39c)
+    - [`#chunks(size: :month, partial_first: true, partial_last: true, round_up_last: false)`](#org1ac4069)
+  - [Set Operations](#orgce868a8)
+    - [`#subset_of?(other)`](#orgc543c76)
+    - [`#proper_subset_of?(other)`](#org25e4557)
+    - [`#superset_of(other)`](#org346c561)
+    - [`#proper_superset_of(other)`](#orgd6469df)
+    - [`#intersection(other)`](#org0657929)
+    - [`#union(other)`](#org2b4afad)
+    - [`#difference(other)`](#orgabc529b)
+  - [Coverage](#org8b77cea)
+    - [`#contains?(date)`](#orga8a0a29)
+    - [`Period.overlaps_among?(periods)`](#orgff72753)
+    - [`#overlaps_among?`](#org7598c73)
+    - [`#spanned_by(periods)`](#org2808f48)
+    - [`#gaps`](#orgb8b77a6)
+  - [Interest Day-count fraction (`#year_fraction`)](#org98c19ce)
+    - [Choosing a convention](#org9274bdf)
+    - [Actual-day conventions and boundaries](#org4613bae)
+    - [Sources](#orgb839523)
+- [Development](#orga87916a)
+- [Contributing](#orgcb9b134)
 
 [![CI](https://github.com/ddoherty03/fat_period/actions/workflows/ruby.yml/badge.svg?branch=master)](https://github.com/ddoherty03/fat_period/actions/workflows/ruby.yml)
 
 
-<a id="orgfd471ac"></a>
+<a id="orgc5d4d8e"></a>
 
 # Version
 
@@ -58,7 +58,7 @@ Current version is: 3.1.0
 ```
 
 
-<a id="org8877425"></a>
+<a id="org1ba80db"></a>
 
 # Introduction
 
@@ -67,12 +67,12 @@ Current version is: 3.1.0
 In addition, set operations are provided for Period, as well as methods for breaking a larger periods into an array of smaller periods of various 'chunk' sizes that correspond to calendar-related periods such as days, weeks, months, and so forth.
 
 
-<a id="org1e1b80c"></a>
+<a id="org0dff64a"></a>
 
 # Installation
 
 
-<a id="org68e1417"></a>
+<a id="org124d8ed"></a>
 
 ## Installing the gem
 
@@ -99,24 +99,24 @@ Or install it yourself as:
 ```
 
 
-<a id="orgcd9d342"></a>
+<a id="orge5c3efb"></a>
 
 # Usage
 
 
-<a id="org9cd5c6b"></a>
+<a id="org72bd7c0"></a>
 
 ## Constant `Period::FOREVER`
 
 The `Period` class depends on the extensions to `Date` made by the `fat_core` gem, which you can read about [here](https://github.com/ddoherty03/fat_core). It defines a constant, `Period::FOREVER`, which is defined as extending from `Date::BOT` to `Date::EOT`, which are defined in `fat_date` as 1900-01-01 and 3000-12-31, respectively and define the beginning of time and end of time for practical commercial purposes. The constant is not frozen, so you can re-define it to your liking.
 
 
-<a id="org1e5f1a6"></a>
+<a id="orgbb2b7e4"></a>
 
 ## Construction of Periods
 
 
-<a id="org8388230"></a>
+<a id="orgd8f5b9d"></a>
 
 ### `Period.new`
 
@@ -144,7 +144,7 @@ A Period is constructed with two arguments for the begin and end date. The begin
 ```
 
 
-<a id="org7ba942f"></a>
+<a id="orga32a08b"></a>
 
 ### `Period.parse`
 
@@ -262,7 +262,7 @@ A "spec" is a string designating some period of time. There are many ways of spe
     ```
 
 
-<a id="orgaae43c8"></a>
+<a id="orgaf07a44"></a>
 
 ### `Period.parse_phrase`
 
@@ -279,20 +279,6 @@ The `Period.parse_phrase` method will take a string having a 'from', 'to', and '
     tab << [k, pd.inspect]
   end
   tab
-```
-
-```
-| k | Sub Period                     |
-|---+--------------------------------|
-| 0 | Period(2025-01-01..2025-01-31) |
-| 1 | Period(2025-02-01..2025-02-28) |
-| 2 | Period(2025-03-01..2025-03-31) |
-| 3 | Period(2025-04-01..2025-04-30) |
-| 4 | Period(2025-05-01..2025-05-31) |
-| 5 | Period(2025-06-01..2025-06-30) |
-| 6 | Period(2025-07-01..2025-07-31) |
-| 7 | Period(2025-08-01..2025-08-31) |
-| 8 | Period(2025-09-01..2025-09-30) |
 ```
 
 ```
@@ -381,53 +367,8 @@ Here is the same period broken into weeks. Notice that the first and last "weeks
 | 39 | Period(2025-09-29..2025-09-30) |
 ```
 
-```
-|  k | Sub Period                     |
-|----+--------------------------------|
-|  0 | Period(2025-01-01..2025-01-05) |
-|  1 | Period(2025-01-06..2025-01-12) |
-|  2 | Period(2025-01-13..2025-01-19) |
-|  3 | Period(2025-01-20..2025-01-26) |
-|  4 | Period(2025-01-27..2025-02-02) |
-|  5 | Period(2025-02-03..2025-02-09) |
-|  6 | Period(2025-02-10..2025-02-16) |
-|  7 | Period(2025-02-17..2025-02-23) |
-|  8 | Period(2025-02-24..2025-03-02) |
-|  9 | Period(2025-03-03..2025-03-09) |
-| 10 | Period(2025-03-10..2025-03-16) |
-| 11 | Period(2025-03-17..2025-03-23) |
-| 12 | Period(2025-03-24..2025-03-30) |
-| 13 | Period(2025-03-31..2025-04-06) |
-| 14 | Period(2025-04-07..2025-04-13) |
-| 15 | Period(2025-04-14..2025-04-20) |
-| 16 | Period(2025-04-21..2025-04-27) |
-| 17 | Period(2025-04-28..2025-05-04) |
-| 18 | Period(2025-05-05..2025-05-11) |
-| 19 | Period(2025-05-12..2025-05-18) |
-| 20 | Period(2025-05-19..2025-05-25) |
-| 21 | Period(2025-05-26..2025-06-01) |
-| 22 | Period(2025-06-02..2025-06-08) |
-| 23 | Period(2025-06-09..2025-06-15) |
-| 24 | Period(2025-06-16..2025-06-22) |
-| 25 | Period(2025-06-23..2025-06-29) |
-| 26 | Period(2025-06-30..2025-07-06) |
-| 27 | Period(2025-07-07..2025-07-13) |
-| 28 | Period(2025-07-14..2025-07-20) |
-| 29 | Period(2025-07-21..2025-07-27) |
-| 30 | Period(2025-07-28..2025-08-03) |
-| 31 | Period(2025-08-04..2025-08-10) |
-| 32 | Period(2025-08-11..2025-08-17) |
-| 33 | Period(2025-08-18..2025-08-24) |
-| 34 | Period(2025-08-25..2025-08-31) |
-| 35 | Period(2025-09-01..2025-09-07) |
-| 36 | Period(2025-09-08..2025-09-14) |
-| 37 | Period(2025-09-15..2025-09-21) |
-| 38 | Period(2025-09-22..2025-09-28) |
-| 39 | Period(2025-09-29..2025-09-30) |
-```
 
-
-<a id="orgeafc507"></a>
+<a id="org71af6fd"></a>
 
 ### `Period.ensure`
 
@@ -457,16 +398,8 @@ Here is the same period broken into weeks. Notice that the first and last "weeks
   Period(2025-09-01..2025-09-30)
 ```
 
-```
-Period(2025-09-01..2025-09-30)
-```
-
 ```ruby
   Period.ensure('from 2016 to 2018-3Q')
-```
-
-```
-Period(2016-01-01..2018-09-30)
 ```
 
 ```
@@ -481,17 +414,13 @@ Period(2016-01-01..2018-09-30)
 Period(2016-01-02..2017-09-29)
 ```
 
-```
-Period(2016-01-02..2017-09-29)
-```
 
-
-<a id="org5bfe2ad"></a>
+<a id="org033812c"></a>
 
 ## Conversion
 
 
-<a id="org80d71fa"></a>
+<a id="org789b885"></a>
 
 ### `#to_range`
 
@@ -506,7 +435,7 @@ Period(2016-01-02..2017-09-29)
 ```
 
 
-<a id="org3d35257"></a>
+<a id="orgd4e7bf1"></a>
 
 ### `#to_s`
 
@@ -541,7 +470,7 @@ Period(2016-01-02..2017-09-29)
 ```
 
 
-<a id="orga76b942"></a>
+<a id="org4695aee"></a>
 
 ### `#tex_quote`
 
@@ -576,7 +505,7 @@ Period(2016-01-02..2017-09-29)
 ```
 
 
-<a id="org8e921c0"></a>
+<a id="org62e3d88"></a>
 
 ## Comparison
 
@@ -614,12 +543,12 @@ The `Period` class includes `Comparable` so periods can be compared directly. Pe
 ```
 
 
-<a id="org38966b2"></a>
+<a id="org0a448ca"></a>
 
 ## Enumeration
 
 
-<a id="org8de5f15"></a>
+<a id="org13b1aed"></a>
 
 ### `#each`
 
@@ -672,7 +601,7 @@ tab
 ```
 
 
-<a id="org08306c0"></a>
+<a id="org73ba385"></a>
 
 ### `#size`
 
@@ -687,7 +616,7 @@ Period.parse('2024-02').size
 ```
 
 
-<a id="orgf1c37f4"></a>
+<a id="org44148fd"></a>
 
 ## Chunking
 
@@ -706,9 +635,9 @@ Period.parse('2024-02').size
 `FatPeriod` refers to these special kinds of periods as "chunks", and they are often useful in financial applications.
 
 
-<a id="org30d2bb2"></a>
+<a id="org3a1451a"></a>
 
-### ~Period.<chunk>\_containing(date)
+### `Period.<chunk>_containing(date)`
 
 For each chunk, `FatPeriod` provides a method for returning the `Period` of the size of the given chunk containing a given date. For example, to find the calendar quarter containing '2016-08-04', you can call `Period.quarter_containing('2016-08-04')` and get the period `2016-3Q`.
 
@@ -789,7 +718,7 @@ tab
 ```
 
 
-<a id="org730ff70"></a>
+<a id="orgabdc39c"></a>
 
 ### `#chunk_sym` and `#chunk_name`
 
@@ -828,9 +757,9 @@ tab
 ```
 
 
-<a id="orge359675"></a>
+<a id="org1ac4069"></a>
 
-### ~#chunks(size: :month, partial\_first: true, partial\_last: true, round\_up\_last: false)
+### `#chunks(size: :month, partial_first: true, partial_last: true, round_up_last: false)`
 
 You may want to divide a year into months, or a quarter into semi-months. For this `FatTable` provides `Period#chunks`. By default, the first and last chunks will be partial, the first starting at `Period#first` regardless of whether it is a full chunk and the last ending at `Period#last` regardless of whether it is a full chunk. But this can be altered at the cost of not fully spanning the subject `Period`.
 
@@ -906,14 +835,14 @@ With `round_up_last` set `true`, the last chunk overflows the subject Period's b
 ```
 
 
-<a id="org44aec48"></a>
+<a id="orgce868a8"></a>
 
 ## Set Operations
 
 Another question one might want to ask of a `Period` is how it relates to another `Period`. Does it fully contain another? Is it a sub-period of another, and so-forth. Since these resemble the same sorts of questions one might ask of sets of numbers, these are called "set operations" on ~Period~s.
 
 
-<a id="orgf284ae6"></a>
+<a id="orgc543c76"></a>
 
 ### `#subset_of?(other)`
 
@@ -946,7 +875,7 @@ false
 ```
 
 
-<a id="org1285119"></a>
+<a id="org25e4557"></a>
 
 ### `#proper_subset_of?(other)`
 
@@ -971,7 +900,7 @@ false
 ```
 
 
-<a id="org0e274bc"></a>
+<a id="org346c561"></a>
 
 ### `#superset_of(other)`
 
@@ -1004,7 +933,7 @@ true
 ```
 
 
-<a id="org2e47c02"></a>
+<a id="orgd6469df"></a>
 
 ### `#proper_superset_of(other)`
 
@@ -1029,7 +958,7 @@ false
 ```
 
 
-<a id="org334a36c"></a>
+<a id="org0657929"></a>
 
 ### `#intersection(other)`
 
@@ -1074,7 +1003,7 @@ nil
 ```
 
 
-<a id="org860ac03"></a>
+<a id="org2b4afad"></a>
 
 ### `#union(other)`
 
@@ -1109,7 +1038,7 @@ nil
 ```
 
 
-<a id="org1ece2c8"></a>
+<a id="orgabc529b"></a>
 
 ### `#difference(other)`
 
@@ -1144,12 +1073,12 @@ The operator `-` can be used as well:
 ```
 
 
-<a id="org1d34f89"></a>
+<a id="org8b77cea"></a>
 
 ## Coverage
 
 
-<a id="org92b46df"></a>
+<a id="orga8a0a29"></a>
 
 ### `#contains?(date)`
 
@@ -1172,35 +1101,35 @@ false
 ```
 
 
-<a id="org3eb90df"></a>
+<a id="orgff72753"></a>
 
-### ~Period.overlaps\_among?(periods)
+### `Period.overlaps_among?(periods)`
 
 This class method takes an `Array` of `Periods` and returns whether the given periods have any overlaps with one another.
 
 
-<a id="orge1036b1"></a>
+<a id="org7598c73"></a>
 
-### ~#overlaps\_among?
+### `#overlaps_among?`
 
 Similar to `Period.overlaps_among` except that it returns true only if any of the overlaps occur within the subject `Period`.
 
 
-<a id="orgd8debf7"></a>
+<a id="org2808f48"></a>
 
 ### `#spanned_by(periods)`
 
 Returns whether the given `Array` of `Periods` "span" the subject `Period`, that is, whether they collectively cover the subject `Period` with no overlaps and no gaps.
 
 
-<a id="orgc931cca"></a>
+<a id="orgb8b77a6"></a>
 
 ### `#gaps`
 
 Returns an `Array` of `Period~s representing the gaps within the subject ~Period` not covered by the given `Array` of `Periods`. Overlaps among the periods do not affect the result nor do gaps outside the range of the subject `Period`. Ordering among the given `periods` does not matter.
 
 
-<a id="org5186bff"></a>
+<a id="org98c19ce"></a>
 
 ## Interest Day-count fraction (`#year_fraction`)
 
@@ -1271,7 +1200,7 @@ tab2
 ```
 
 
-<a id="org0b78f81"></a>
+<a id="org9274bdf"></a>
 
 ### Choosing a convention
 
@@ -1310,7 +1239,7 @@ For convention 3, `maturity_date:` accepts a `Date` or date string and identifie
 ```
 
 
-<a id="org944c40f"></a>
+<a id="org4613bae"></a>
 
 ### Actual-day conventions and boundaries
 
@@ -1338,7 +1267,7 @@ AFB (10) counts complete years backwards from settlement, then calculates the re
 Equal start and settlement dates return zero for conventions 0 through 10. Convention 11 (1/1) always returns one, even for equal dates: it applies the full contractual rate without prorating for time. Invalid convention numbers or settlement dates outside the Period raise `ArgumentError`.
 
 
-<a id="org56d633d"></a>
+<a id="orgb839523"></a>
 
 ### Sources
 
@@ -1346,7 +1275,7 @@ Equal start and settlement dates return zero for conventions 0 through 10. Conve
 -   [2006 ISDA Definitions](https://www.isda.org/book/2006-isda-definitions/), Section 4.16, *Day Count Fraction*, is the primary source for most of these rules. A [PDF copy hosted by Standard Chartered](https://www.sc.com/en/uploads/sites/66/content/docs/2006-ISDA-Definitions.pdf) contains the section on printed pages 11-13. Section 4.16(f) defines Bond Basis; the additional US February rules are described in the Wikipedia article rather than that clause.
 
 
-<a id="orga1f9737"></a>
+<a id="orga87916a"></a>
 
 # Development
 
@@ -1355,7 +1284,7 @@ After checking out the repo, run \`bin/setup\` to install dependencies. Then, ru
 To install this gem onto your local machine, run \`bundle exec rake install\`. To release a new version, update the version number in \`version.rb\`, and then run \`bundle exec rake release\`, which will create a git tag for the version, push git commits and tags, and push the \`.gem\` file to [rubygems.org](<https://rubygems.org>).
 
 
-<a id="org8f0cefe"></a>
+<a id="orgcb9b134"></a>
 
 # Contributing
 
