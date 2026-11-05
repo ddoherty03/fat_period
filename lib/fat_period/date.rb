@@ -23,9 +23,5 @@ module FatPeriod
   end
 end
 
-# An extension Date for methods useful with respect to FatPeriod::Periods.
-class Date
-  include FatPeriod::Date
-  # @!parse include FatPeriod::Date
-  # @!parse extend FatPeriod::Date::ClassMethods
-end
+# Add the period helpers to Ruby's Date class.
+Date.include(FatPeriod::Date)
