@@ -1,3 +1,5 @@
+* Version 3.2.0
+- requires fat_date >= 0.3.0 with Date.ensure fix.
 * Version 3.1.0
 - Add ~Period#year_fraction~ to calculate a ~BigDecimal~ interest-accrual
   factor from the period's start to a payment or settlement date. Support

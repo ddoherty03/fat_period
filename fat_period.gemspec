@@ -22,5 +22,5 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_dependency 'fat_core', '>= 7.0'
-  spec.add_dependency 'fat_date'
+  spec.add_dependency 'fat_date', '>= 0.3.0'
 end
